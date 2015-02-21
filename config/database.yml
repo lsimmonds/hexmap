@@ -1,0 +1,31 @@
+development:
+  adapter: mysql2
+  encoding: utf8
+  database: hm_dev
+  username: hm_user_dev
+  password: thepwfordev
+  host: mysql.leonsimmonds.com
+  port: 3306
+
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test: &test
+  adapter: mysql2
+  encoding: utf8
+  database: hm_test
+  username: hm_user_test
+  password: thepwfortest
+  host: mysql.leonsimmonds.com
+  port: 3306
+
+production:
+  adapter: mysql2
+  encoding: utf8
+  database: hm_prod
+  username: hm_user_prod
+  password: thepwforprod
+  host: mysql.leonsimmonds.com
+  port: 3306
+
+cucumber:
+  <<: *test
