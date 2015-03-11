@@ -12,11 +12,19 @@
   var previousPointX;
   var previousPointY;
   var down = false;
-  var hex;
+  var hexLib;
   var context;
   var mouseDown = false;
   var currHexIcon = null;
-
+  var hexes;
+  var countryMode = false;
+  var countryColor = null;
+  var countryId = null;
+  var stateMode = false;
+  var stateColor = null;
+  var stateId = null;
+  var pathMode = false;
+  var pathStart = false;
 
 //hex_mining.png
   //Preload Hex icons
@@ -90,8 +98,69 @@
 
   window.onload = function() {
       canvas = document.getElementById("myCanvas");
-      hex = new hexDefinition(edgeSize);
+      hexLib = new hexDefinition(edgeSize);
       render();
+      var paintButton = function(buttonCanvas,color,doBorder) {
+console.log("buttonCanvas.id: "+JSON.stringify(buttonCanvas.id));
+console.log("buttonCanvas.width: "+JSON.stringify(buttonCanvas.width));
+console.log("buttonCanvas.height: "+JSON.stringify(buttonCanvas.height));
+        buttonCtx = buttonCanvas.getContext('2d');
+console.log("buttonCtx: "+JSON.stringify(buttonCtx));
+        //buttonCtx.beginPath();
+        //buttonCtx.clearRect(0, 0, 40, 30);
+        buttonCtx.fillStyle = color;
+        buttonCtx.fillRect(0,0,buttonCanvas.width,buttonCanvas.height);
+        if(doBorder) {
+          buttonCtx.moveTo(0,0);
+          buttonCtx.lineTo(0,buttonCanvas.height);
+          buttonCtx.lineTo(buttonCanvas.width,buttonCanvas.height);
+          buttonCtx.lineTo(buttonCanvas.width,0);
+          buttonCtx.lineTo(0,0);
+          buttonCtx.lineWidth = 3;
+          buttonCtx.strokeStyle = "#444";
+          buttonCtx.stroke();   
+        }
+console.log("buttonCtx: "+JSON.stringify(buttonCtx));
+      };
+      //Paint country buttons
+      cb = document.getElementById("countryButtonYellow");
+      paintButton(cb,"rgba(255, 255, 0, 1)");
+      cb = document.getElementById("countryButtonRed");
+      paintButton(cb,"rgba(255, 0, 0, 1)");
+      cb = document.getElementById("countryButtonGreen");
+      paintButton(cb,"rgba(0, 255, 0, 1)");
+      cb = document.getElementById("countryButtonBlue");
+      paintButton(cb,"rgba(0, 0, 255, 1)");
+      cb = document.getElementById("countryButtonClear");
+      paintButton(cb,"rgba(255, 255, 255, 1)",true);
+
+      //Paint state buttons
+      cb = document.getElementById("stateButtonYellow1");
+      paintButton(cb,"rgba(255, 255, 66, 1)");
+      cb = document.getElementById("stateButtonYellow2");
+      paintButton(cb,"rgba(255, 255, 167, 1)");
+      cb = document.getElementById("stateButtonBlue1");
+      paintButton(cb,"rgba(0, 0, 255, 1)");
+      cb = document.getElementById("stateButtonBlue2");
+      paintButton(cb,"rgba(0, 0, 170, 1)");
+      cb = document.getElementById("stateButtonBlue3");
+      paintButton(cb,"rgba(0, 0, 85, 1)");
+      cb = document.getElementById("stateButtonRed1");
+      paintButton(cb,"rgba(255, 0, 0, 1)");
+      cb = document.getElementById("stateButtonRed2");
+      paintButton(cb,"rgba(192, 0, 0, 1)");
+      cb = document.getElementById("stateButtonRed3");
+      paintButton(cb,"rgba(128, 0, 0, 1)");
+      cb = document.getElementById("stateButtonRed4");
+      paintButton(cb,"rgba(63, 0, 0, 1)");
+      cb = document.getElementById("stateButtonGreen1");
+      paintButton(cb,"rgba(0, 255, 0, 1)");
+      cb = document.getElementById("stateButtonGreen2");
+      paintButton(cb,"rgba(0, 192, 0, 1)");
+      cb = document.getElementById("stateButtonGreen3");
+      paintButton(cb,"rgba(0, 128, 0, 1)");
+      cb = document.getElementById("stateButtonGreen4");
+      paintButton(cb,"rgba(0, 63, 0, 1)");
 
       var processBackgroundEvt = function(e) {
         down = false;
@@ -110,11 +179,27 @@
         y -= canvas.offsetTop;
         console.log('x: '+x+' y: '+y);
 
-        var result = hex.getReferencePoint(x - xOffset, y - yOffset);
-        console.log('hex.getReferencePoint('+(x - xOffset)+', '+(y - yOffset)+'): '+JSON.stringify(result));
+        var result = hexLib.getReferencePoint(x - xOffset, y - yOffset);
+        console.log('hexLib.getReferencePoint('+(x - xOffset)+', '+(y - yOffset)+'): '+JSON.stringify(result));
+console.log("currHexIcon: "+JSON.stringify(currHexIcon)+", pathMode: "+pathMode+", pathStart: "+pathStart+", countryMode: "+countryMode+", stateMode: "+stateMode);
         if(currHexIcon) { 
-          jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {image: currHexIcon, map_id: mapId, x: result.u, y: result.v}}, function( data ) { if ( data ) { console.log("set: "+JSON.stringify(data)); } });
+          jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {image: currHexIcon, map_id: mapId, x: result.u, y: result.v}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
           drawBackground({image: currHexIcon, map_id: mapId, x: result.u, y: result.v});
+        }
+        else if(pathMode) {
+          if(pathStart) {
+            findPath(context, pathStart, result);
+            pathStart=false;
+          }
+          else {
+            pathStart=result;
+          }
+        }
+        else if(countryMode) {
+          pickCountry(context,result,countryColor,countryId);
+        }
+        else if(stateMode) {
+          pickState(context,result,stateColor,stateId,countryId);
         }
       }
 
@@ -131,44 +216,345 @@
         };
       };
 
-      $(".hexIcon").click(function(e) {
+      $(".countryBorder").click(function(e) {
+console.log("this? "+this.id+", e: "+e);
+console.log("e.target.id: "+e.target.id);
+          countryMode=true;
+          stateMode=false;
+          //pathMode=true;
+          pathMode=false;
+          currHexIcon = null;
+          if(this.id.match(/yellow/i)) {
+            countryColor="rgba(255, 255, 0, 0.25)";
+            countryId=1;
+            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
+console.log("arr: "+JSON.stringify(arr));
+              countryMode=false;
+              stateMode=true;
+              switch(arr[1]) {
+                case "1":
+                  stateId=1;
+                  stateColor="rgba(255, 255, 0, 0.25)";
+                  break; 
+                case "2":
+                  stateId=2;
+                  stateColor="rgba(255, 255, 0, 0.25)";
+                  break; 
+              }
+console.log("stateId: "+stateId+", stateColor: "+stateColor);
+            }
+          }
+          else if(this.id.match(/red/i)) {
+            countryColor="rgba(255, 0, 0, 0.25)";
+            countryId=2;
+            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
+              countryMode=false;
+              stateMode=true;
+              switch(arr[1]) {
+                case "1":
+                  stateId=10;
+                  stateColor="rgba(255, 0, 0, 0.25)";
+                  break; 
+                case "2":
+                  stateId=11;
+                  stateColor="rgba(255, 0, 0, 0.25)";
+                  break; 
+                case "3":
+                  stateId=12;
+                  stateColor="rgba(255, 0, 0, 0.25)";
+                  break; 
+                case "4":
+                  stateId=12;
+                  stateColor="rgba(255, 0, 0, 0.25)";
+                  break; 
+              }
+            }
+          }
+          else if(this.id.match(/blue/i)) {
+            countryColor="rgba(0, 0, 255, 0.25)";
+            countryId=3;
+            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
+              countryMode=false;
+              stateMode=true;
+              switch(arr[1]) {
+                case "1":
+                  stateId=7;
+                  stateColor="rgba(0, 0, 255, 0.25)";
+                  break; 
+                case "2":
+                  stateId=8;
+                  stateColor="rgba(0, 0, 255, 0.25)";
+                  break; 
+                case "3":
+                  stateId=9;
+                  stateColor="rgba(0, 0, 255, 0.25)";
+                  break; 
+              }
+            }
+           }
+          else if(this.id.match(/green/i)) {
+            countryColor="rgba(0, 255, 0, 0.25)";
+            countryId=4;
+            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
+              countryMode=false;
+              stateMode=true;
+              switch(arr[1]) {
+                case "1":
+                  stateId=3;
+                  stateColor="rgba(0, 255, 0, 0.25)";
+                  break; 
+                case "2":
+                  stateId=4;
+                  stateColor="rgba(0, 255, 0, 0.25)";
+                  break; 
+                case "3":
+                  stateId=5;
+                  stateColor="rgba(0, 255, 0, 0.25)";
+                  break; 
+                case "4":
+                  stateId=6;
+                  stateColor="rgba(0, 255, 0, 0.25)";
+                  break; 
+              }
+            }
+           }
+          else if(this.id.match(/clear/i)) {
+            countryColor="rgba(255, 255, 255, 0.25)";
+            countryId=null;
+          }
+      });
+
+       $(".hexIcon").click(function(e) {
 console.log("this? "+this.id);
           setIcon(this.id);
-      });
+       });
     };
 
+    var pickCountry =  function(context, hexCoordinates, color, country) {
+console.log("pickCountry: "+JSON.stringify(hexCoordinates)+", color: "+color+", country: "+country);
+      var center = hexLib.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
+      context.beginPath();
+      
+      //Left most point
+      context.moveTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset );
+      //line #6
+      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
+      //line #1
+      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
+      //line #2
+      context.lineTo((center.x + hexLib.b / 2.0) + xOffset, center.y + yOffset);
+      //line #3
+      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0) + yOffset);
+      //line #4
+      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0)  + yOffset);
+      //line #5
+      context.lineTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset);
+      context.lineWidth = edgeWidth*2;
+      context.strokeStyle = "#444";
+
+      context.fillStyle = color;
+      context.fill();
+            
+      context.stroke();   
+      jQuery.post("/hexes/"+mapId+"/"+hexCoordinates.u+"/"+hexCoordinates.v,
+                  {hex: {country_id: country}},
+                  function( data ) { if ( data ) { console.log("set: "+JSON.stringify(data)); } });
+    }
+
+    var pickState =  function(context, hexCoordinates, color, state, country) {
+console.log("pickState: "+JSON.stringify(hexCoordinates)+", color: "+color+", state: "+state+", country: "+country);
+      if(hexes[hexCoordinates.u][hexCoordinates.v].country_id != country) {
+        console.log("Wrong country!!!");
+        return;
+      }
+      var center = hexLib.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
+      context.beginPath();
+      
+      //Left most point
+      context.moveTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset );
+      //line #6
+      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
+      //line #1
+      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
+      //line #2
+      context.lineTo((center.x + hexLib.b / 2.0) + xOffset, center.y + yOffset);
+      //line #3
+      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0) + yOffset);
+      //line #4
+      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0)  + yOffset);
+      //line #5
+      context.lineTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset);
+      context.lineWidth = edgeWidth*2;
+      context.strokeStyle = "#444";
+
+      context.fillStyle = color;
+      context.fill();
+            
+      context.stroke();   
+      jQuery.post("/hexes/"+mapId+"/"+hexCoordinates.u+"/"+hexCoordinates.v,
+                  {hex: {country_id: country, province_id: state}},
+                  function( data ) { if ( data ) { console.log("set: "+JSON.stringify(data)); } });
+    }
+
     var drawBackground = function(thisHex) {
-console.log("drawBackground("+JSON.stringify(thisHex)+")");
+//console.log("drawBackground("+JSON.stringify(thisHex)+")");
       var img = hexTerrains[thisHex.image];
-console.log("hex.getPixelCoordinates("+thisHex.x+","+thisHex.y+")");
-      var center = hex.getPixelCoordinates(thisHex.x, thisHex.y);
-console.log('center: '+JSON.stringify(center));
-      imx = (center.x - hex.s / 2.0) - 5.81 + xOffset;
-      imy = (center.y - hex.a / 2.0) + 0.4 + yOffset;
-console.log('imx: '+imx+' imy: '+imy);
+      if ( img === undefined) {
+        return;
+      }
+//console.log("hexLib.getPixelCoordinates("+thisHex.x+","+thisHex.y+")");
+      var center = hexLib.getPixelCoordinates(thisHex.x, thisHex.y);
+//console.log('center: '+JSON.stringify(center));
+      imx = (center.x - hexLib.s / 2.0) - 5.81 + xOffset;
+      imy = (center.y - hexLib.a / 2.0) + 0.4 + yOffset;
+//console.log('imx: '+imx+' imy: '+imy);
       addonX = 4;
       addonY= 2.5;
-console.log("img: "+JSON.stringify(img.src));
-      console.log("context.drawImage("+img+","+imx+","+imy+","+(hex.hexagon_narrow_width+addonX)+","+(hex.hexagon_narrow_width+addonY)+")");
-      context.drawImage(img,imx,imy,hex.hexagon_narrow_width+addonX,hex.hexagon_narrow_width+addonY);
-console.log(Math.round(thisHex.x) + ", " + Math.round(thisHex.y));
+//console.log("img: "+JSON.stringify(img.src));
+//console.log("context.drawImage("+img+","+imx+","+imy+","+(hexLib.hexagon_narrow_width+addonX)+","+(hexLib.hexagon_narrow_width+addonY)+")");
+      context.drawImage(img,imx,imy,hexLib.hexagon_narrow_width+addonX,hexLib.hexagon_narrow_width+addonY);
+//console.log(Math.round(thisHex.x) + ", " + Math.round(thisHex.y));
     }
 
     function setIcon(fileName) {
       currHexIcon=fileName;
+      pathMode=false;
+      countryMode=false;
+      stateMode=false;
+    }
+
+    function findPath(context, startHex, endHex) {
+console.log("findPath("+JSON.stringify(context)+", "+JSON.stringify(startHex)+", "+JSON.stringify(endHex)+")");
+      var oppX;
+      var oppY;
+      var testX;
+      var testY;
+      var xUp;
+      var yUp;
+      if(startHex.u>endHex.u) {
+        //Count down
+        oppX = function(hex) {
+                 hex.u--
+               }
+        testX = function(hexSrc,hexDest) {
+                 return hexSrc.u>hexDest.u;
+               }
+        xUp=false;
+      }
+      else {
+        //Count up
+        oppX = function(hex) {
+                 hex.u++;
+               }
+        testX = function(hexSrc,hexDest) {
+                 return hexSrc.u<hexDest.u;
+               }
+        xUp=true;
+      }
+      if(startHex.v>endHex.v) {
+        //Count down
+        oppY = function(hex) {
+                 hex.v--;
+               }
+        testY = function(hexSrc,hexDest) {
+                 return hexSrc.v>hexDest.v;
+               }
+        yUp=false;
+      }
+      else {
+        //Count up
+        oppY = function(hex) {
+                 hex.v++;
+               }
+        testY = function(hexSrc,hexDest) {
+                 return hexSrc.v<hexDest.v;
+               }
+        yUp=true;
+      }
+      var workingHex = startHex;
+      var lastHex = { "u": workingHex.u, "v": workingHex.v };
+console.log("workingHex: "+JSON.stringify(workingHex));
+      drawEdge(context, workingHex);
+      while(JSON.stringify(workingHex)!=JSON.stringify(endHex)) {
+console.log("workingHex: "+JSON.stringify(workingHex));
+console.log("xUp: "+xUp+", yUp: "+yUp);
+        if(yUp) {
+          var doY = (workingHex.u%2 || (startHex.u==endHex.u));
+          if(testX(workingHex,endHex)) {
+            oppX(workingHex);
+          }
+          if(doY) { //increment y only for odd hexes
+            if(testY(workingHex,endHex)) {
+              oppY(workingHex);
+            }
+          }
+        }
+        else {
+          var doY = (!(workingHex.u%2) || (startHex.u==endHex.u));
+          if(testX(workingHex,endHex)) {
+            oppX(workingHex);
+          }
+          if(doY) { //increment y only for even hexes
+            if(testY(workingHex,endHex)) {
+              oppY(workingHex);
+            }
+          }
+        }
+console.log("workingHex: "+JSON.stringify(workingHex)+", lastHex: "+JSON.stringify(lastHex));
+        if(JSON.stringify(workingHex)!=JSON.stringify(lastHex)) {
+          drawEdge(context, workingHex);
+        }
+        lastHex = { "u": workingHex.u, "v": workingHex.v };
+      }
+    }
+
+    function drawEdge(context, hexCoordinates) {
+console.log("drawEdge: "+JSON.stringify(hexCoordinates));
+      var center = hexLib.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
+      context.beginPath();
+      
+      //Left most point
+      context.moveTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset );
+      //line #6
+      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
+      //line #1
+      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
+      //line #2
+      context.lineTo((center.x + hexLib.b / 2.0) + xOffset, center.y + yOffset);
+      //line #3
+      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0) + yOffset);
+      //line #4
+      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0)  + yOffset);
+      //line #5
+      context.lineTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset);
+      context.lineWidth = edgeWidth*2;
+      context.strokeStyle = "#444";
+
+      context.fillStyle = "rgba(190, 190, 190, 0.25)";
+      context.fill();
+            
+      context.stroke();   
     }
 
      function drawHex(context, hexCoordinates) {
-      var center = hex.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
+//console.log("drawHex: "+JSON.stringify(hexCoordinates));
+      var center = hexLib.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
       context.beginPath();
       
-      context.moveTo((center.x - hex.b / 2.0) + xOffset, center.y + yOffset );
-      context.lineTo((center.x - hex.s / 2.0) + xOffset, (center.y - hex.a / 2.0) + yOffset);
-      context.lineTo((center.x + hex.s / 2.0) + xOffset, (center.y - hex.a / 2.0) + yOffset);
-      context.lineTo((center.x + hex.b / 2.0) + xOffset, center.y + yOffset);
-      context.lineTo((center.x + hex.s / 2.0) + xOffset, (center.y + hex.a / 2.0) + yOffset);
-      context.lineTo((center.x - hex.s / 2.0) + xOffset, (center.y + hex.a / 2.0)  + yOffset);
-      context.lineTo((center.x - hex.b / 2.0) + xOffset, center.y + yOffset);
+      //Left most point
+      context.moveTo((center.x - hexLib.b/2.0) + xOffset, center.y + yOffset );
+      //line #6
+      context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
+      //line #1
+      context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
+      //line #2
+      context.lineTo((center.x + hexLib.b/2.0) + xOffset, center.y + yOffset);
+      //line #3
+      context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0) + yOffset);
+      //line #4
+      context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0)  + yOffset);
+      //line #5
+      context.lineTo((center.x - hexLib.b/2.0) + xOffset, center.y + yOffset);
       context.lineWidth = edgeWidth;
       context.strokeStyle = "#444";
 
@@ -179,65 +565,479 @@ console.log(Math.round(thisHex.x) + ", " + Math.round(thisHex.y));
     }
 
     function render() {
-      var canvas = document.getElementById("myCanvas");
+      //var canvas = document.getElementById("myCanvas");
       context = canvas.getContext("2d");
       context.clearRect(0, 0, <%= @map.width =%>, <%= @map.length =%>);
       drawHexagonGrid(context);
+    }
+
+    function putHexes(data) {
+      hexes=[];
+//{"id":731,
+//"name":null,
+//"description":null,
+//"map_id":1,
+//"country_id":null,
+//"province_id":null,
+//"created_at":"2015-02-21T05:05:55.000Z",
+//"updated_at":"2015-02-21T05:05:55.000Z",
+//"creator_id":null,
+//"updater_id":null,
+//"image":"waterSea",
+//"background":null,
+//"overlay":null,
+//"x":71,
+//"y":92,
+//"local_image":null,
+//"c_border":false,
+//"p_border":false}
+
+//console.log("putHexes("+JSON.stringify(data)+")");
+      for (var i = 0; i < data.length; i++) {
+//console.log("data["+i+"]: "+JSON.stringify(data[i]));
+//console.log("data["+i+"].x: "+JSON.stringify(data[i].x));
+        if(!hexes[data[i].x]) { hexes[data[i].x]=[]; }
+        hexes[data[i].x][data[i].y]=data[i];
+        drawBackground(hexes[data[i].x][data[i].y]);
+      }
+      drawBorders(hexes);
+    }
+
+    function above(hex) {
+      return hexes[hex.x][hex.y-1];
+    }
+
+    function below(hex) {
+      return hexes[hex.x][hex.y+1];
+    }
+
+    function upperRight(hex) {
+      if(hex.x%2) { //column is odd
+        return hexes[hex.x+1]?hexes[hex.x+1][hex.y]:null;
+      }
+      else { //column is even
+        return hexes[hex.x+1]?hexes[hex.x+1][hex.y-1]:null;
+      }
+    }
+
+     function upperLeft(hex) {
+      if(hex.x%2) { //column is odd
+        return hexes[hex.x-1]?hexes[hex.x-1][hex.y]:null;
+      }
+      else { //column is even
+        return hexes[hex.x-1]?hexes[hex.x-1][hex.y-1]:null;
+      }
+    }
+
+     function lowerRight(hex) {
+      if(hex.x%2) { //column is odd
+        return hexes[hex.x+1]?hexes[hex.x+1][hex.y+1]:null;
+      }
+      else { //column is even
+        return hexes[hex.x+1]?hexes[hex.x+1][hex.y]:null;
+      }
+    }
+
+     function lowerLeft(hex) {
+      if(hex.x%2) { //column is odd
+        return hexes[hex.x-1]?hexes[hex.x-1][hex.y+1]:null;
+      }
+      else { //column is even
+        return hexes[hex.x-1]?hexes[hex.x-1][hex.y]:null;
+      }
+    }
+
+    function drawBorders(hexes) {
+console.log("drawBorders, hexes: "+typeof(hexes));
+console.log("drawBorders, hexes.length: "+hexes.length);
+console.log("drawBorders, hexes[0].length: "+hexes[0].length);
+      for (var i = 0; i < hexes.length; i++) {
+//console.log("hexes["+i+"]: "+JSON.stringify(hexes[i]));
+        for (var j = 0; j < hexes[i].length; j++) {
+          if(!(hexes[i][j])) { continue; }
+//console.log("hexes["+i+"]["+j+"]: "+JSON.stringify(hexes[i][j]));
+          var openPath=false;
+          var countryPaths = [];
+          var statePaths = [];
+          var center;
+//line #6 context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
+//line #1 context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
+//line #2 context.lineTo((center.x + hexLib.b/2.0) + xOffset, center.y + yOffset);
+//line #3 context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0) + yOffset);
+//line #4 context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0)  + yOffset);
+//line #5 context.lineTo((center.x - hexLib.b/2.0) + xOffset, center.y + yOffset);
+//      context.lineWidth = edgeWidth;
+//      context.strokeStyle = "#444";
+
+          center = hexLib.getPixelCoordinates(hexes[i][j].x, hexes[i][j].y);
+          if(upperLeft(hexes[i][j])) {
+            if(hexes[i][j].country_id != upperLeft(hexes[i][j]).country_id) {
+              //Add Country border upper right
+              countryPaths.push({"start":{"x":(center.x - hexLib.b/2.0) + xOffset,"y":center.y + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+            }
+            else if(hexes[i][j].province_id != upperLeft(hexes[i][j]).province_id) {
+              //Add State border upper right
+              statePaths.push({"start":{"x":(center.x - hexLib.b/2.0) + xOffset,"y":center.y + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+            }
+          }
+          if(above(hexes[i][j])) {
+            if(hexes[i][j].country_id != above(hexes[i][j]).country_id) {
+              //Add Country border up top
+              countryPaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+            }
+            else if(hexes[i][j].province_id != above(hexes[i][j]).province_id) {
+              //Add State border up top
+              statePaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+            }
+          }
+          if(upperRight(hexes[i][j])) {
+            if(hexes[i][j].country_id != upperRight(hexes[i][j]).country_id) {
+              //Add Country border up top
+              countryPaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+            }
+            else if(hexes[i][j].province_id != upperRight(hexes[i][j]).province_id) {
+              //Add State border up top
+              statePaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+            }
+          }
+          if(lowerRight(hexes[i][j])) {
+            if(hexes[i][j].country_id != lowerRight(hexes[i][j]).country_id) {
+              //Add Country border up top
+              countryPaths.push({"start":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset}});
+            }
+            else if(hexes[i][j].province_id != lowerRight(hexes[i][j]).province_id) {
+              //Add State border up top
+              statePaths.push({"start":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset}});
+            }
+          }
+          if(below(hexes[i][j])) {
+            if(hexes[i][j].country_id != below(hexes[i][j]).country_id) {
+              //Add Country border up top
+              countryPaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset}});
+            }
+            else if(hexes[i][j].province_id != below(hexes[i][j]).province_id) {
+              //Add State border up top
+              statePaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset}});
+            }
+          }
+          if(lowerLeft(hexes[i][j])) {
+            if(hexes[i][j].country_id != lowerLeft(hexes[i][j]).country_id) {
+              //Add Country border up top
+              countryPaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset},"end":{"x":(center.x - hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+            }
+            else if(hexes[i][j].province_id != lowerLeft(hexes[i][j]).province_id) {
+              //Add State border up top
+              statePaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset},"end":{"x":(center.x - hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+            }
+          }
+          //Draw country borders
+          for (var w = 0; w < countryPaths.length; w++) {
+            context.beginPath();
+            context.moveTo(countryPaths[w].start.x,countryPaths[w].start.y);
+            context.lineTo(countryPaths[w].end.x,countryPaths[w].end.y);
+            context.lineWidth = edgeWidth*3;
+            context.strokeStyle = "#000";
+            context.stroke();   
+          }
+          //Draw state borders
+          for (var w = 0; w < statePaths.length; w++) {
+            context.beginPath();
+            context.moveTo(statePaths[w].start.x,statePaths[w].start.y);
+            context.lineTo(statePaths[w].end.x,statePaths[w].end.y);
+            context.lineWidth = edgeWidth*3;
+            context.strokeStyle = "#fff";
+            context.stroke();   
+          }
+        }
+      }
     }
 
     function drawHexagonGrid(context) {
       var date1 = new Date().getTime();
       var rows = 100;
       var columns = 100;
-      var topLeftHex = hex.getReferencePoint(0 - xOffset,0 - yOffset);
-      var bottomLeftHex = hex.getReferencePoint(0 - xOffset,<%= @map.length =%> - yOffset);
-      var topRightHex = hex.getReferencePoint(<%= @map.width =%> - xOffset,0 - yOffset);
+      var topLeftHex = hexLib.getReferencePoint(0 - xOffset,0 - yOffset);
+      var bottomLeftHex = hexLib.getReferencePoint(0 - xOffset,<%= @map.length =%> - yOffset);
+      var topRightHex = hexLib.getReferencePoint(<%= @map.width =%> - xOffset,0 - yOffset);
       var offset = 0;
-      for (var i = topLeftHex.u - 1; i <= topRightHex.u + 1; i++) {
-        for (var j = topLeftHex.v - 1 - Math.round(offset); j < bottomLeftHex.v + 1 - Math.round(offset); j++) {
+      //for (var i = topLeftHex.u - 1; i <= topRightHex.u + 1; i++) 
+      for (var i = 0; i <= topRightHex.u + 1; i++) {
+        //for (var j = topLeftHex.v - 1 - Math.round(offset); j < bottomLeftHex.v + 1 - Math.round(offset); j++) 
+        for (var j = 0; j < bottomLeftHex.v + 1 - Math.round(offset); j++) {
           drawHex(context, {u:i, v:j});
-          jQuery.get("/hexes/"+mapId+"/"+i+"/"+j, function( data ) { if ( data ) { drawBackground(data); console.log("currHex: "+JSON.stringify(data)); } });
+          //jQuery.get("/hexes/"+mapId+"/"+i+"/"+j, function( data ) { if ( data ) { drawBackground(data); console.log("currHex: "+JSON.stringify(data)); } });
         }
 	offset = offset == 0 ? 0.5 : 0;
       }
       var date2 = new Date().getTime();
       document.getElementById("result").innerHTML = "Draw Time: " + (date2 - date1) + " ms";
+      jQuery.get("/hexes/"+mapId, function( data ) { if ( data ) { putHexes(data); console.log("got hexes"); } });
     }
   </script>
 
   <div id="result">Draw Time: 27 ms</div>
 
-  <canvas id="myCanvas" width="<%= @map.width =%>" height="<%= @map.length =%>"> </canvas>
-</br>
-<%= link_to("#", id: "farmland", class: "hexIcon") do %>
-  <%= content_tag(:div, "Farmland") do %>
-    <%= image_tag('hex_farmland.png', alt: "farmland") %>
-  <% end %>
+<%= content_tag(:div, class: "countryLegend") do %>
+    <%= link_to("#", id: "countryBorderYellow", class: "countryBorder") do %>
+      <%= content_tag(:div, class: "countryBorder") do %>
+        <%= content_tag(:p, "Country W") %>
+        <canvas id="countryButtonYellow" class="countryButton" width=40 height=30></canvas></br>
+        <%= content_tag(:div, class: "stateLabel") do %>
+        State 1&nbsp;&nbsp;&nbsp;State 2
+        <% end %>
+        <canvas id="stateButtonYellow1" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonYellow2" class="countryButton" width=40 height=30></canvas>
+      <% end %>
+    <% end %>
+     <%= link_to("#", id: "countryBorderBlue", class: "countryBorder") do %>
+      <%= content_tag(:div, class: "countryBorder") do %>
+        <%= content_tag(:p, "Country X") %>
+        <canvas id="countryButtonBlue" class="countryButton" width=40 height=30></canvas></br>
+        <%= content_tag(:div, class: "stateLabel") do %>
+        State 1&nbsp;&nbsp;&nbsp;State 2&nbsp;&nbsp;&nbsp;State 3
+        <% end %>
+        <canvas id="stateButtonBlue1" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonBlue2" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonBlue3" class="countryButton" width=40 height=30></canvas>
+      <% end %>
+    <% end %>
+    <%= link_to("#", id: "countryBorderRed", class: "countryBorder") do %>
+      <%= content_tag(:div, class: "countryBorder") do %>
+        <%= content_tag(:p, "Country Y") %>
+        <canvas id="countryButtonRed" class="countryButton" width=40 height=30></canvas></br>
+        <%= content_tag(:div, class: "stateLabel") do %>
+        State 1&nbsp;&nbsp;&nbsp;State 2&nbsp;&nbsp;&nbsp;State 3&nbsp;&nbsp;&nbsp;State 4
+        <% end %>
+        <canvas id="stateButtonRed1" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonRed2" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonRed3" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonRed4" class="countryButton" width=40 height=30></canvas>
+      <% end %>
+    <% end %>
+    <%= link_to("#", id: "countryBorderGreen", class: "countryBorder") do %>
+      <%= content_tag(:div, class: "countryBorder") do %>
+        <%= content_tag(:p, "Country Z") %>
+        <canvas id="countryButtonGreen" class="countryButton" width=40 height=30></canvas></br>
+        <%= content_tag(:div, class: "stateLabel") do %>
+        State 1&nbsp;&nbsp;&nbsp;State 2&nbsp;&nbsp;&nbsp;State 3&nbsp;&nbsp;&nbsp;State 4
+        <% end %>
+        <canvas id="stateButtonGreen1" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonGreen2" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonGreen3" class="countryButton" width=40 height=30></canvas>
+        <canvas id="stateButtonGreen4" class="countryButton" width=40 height=30></canvas>
+      <% end %>
+    <% end %>
+    <%= link_to("#", id: "countryBorderClear", class: "countryBorder") do %>
+      <%= content_tag(:div, class: "countryBorder") do %>
+        <%= content_tag(:p, "Country Erase") %>
+        <canvas id="countryButtonClear" class="countryButton" width=40 height=30></canvas>
+      <% end %>
+    <% end %>
 <% end %>
-<!--
-< %= link_to image_tag('hex_farmland.png', alt: "farmland"), "#", id: "farmland", class: "hexIcon" %>
--->
-<%= link_to image_tag('hex_mountain.png', alt: "mountain"), "#", id: "mountain", class: "hexIcon" %>
-<%= link_to image_tag('hex_mountains_world.png', alt: "mountainsWorld"), "#", id: "mountainsWorld", class: "hexIcon" %>
-<%= link_to image_tag('hex_grazing-choice.png', alt: "grazingChoice"), "#", id: "grazingChoice", class: "hexIcon" %>
-<%= link_to image_tag('hex_mountains.png', alt: "mountains"), "#", id: 'mountains', class: "hexIcon" %>
-<%= link_to image_tag('hex_badlands.png', alt: "badlands"), "#", id: "badlands", class: "hexIcon" %>
-<%= link_to image_tag('hex_barren.png', alt: "barren"), "#", id: "barren", class: "hexIcon" %>
-<%= link_to image_tag('hex_desert-rocky.png', alt: "forestHomeTrees"), "#", id: "desertRocky", class: "hexIcon" %>
-<%= link_to image_tag('hex_forest-home-trees.png', alt: "forestHomeTrees"), "#", id: "forestHomeTrees", class: "hexIcon" %>
-<%= link_to image_tag('hex_glaciers.png', alt: "glaciers"), "#", id: "glaciers", class: "hexIcon" %>
-<%= link_to image_tag('hex_grassland.png', alt: "grassland"), "#", id: "grassland", class: "hexIcon" %>
-<%= link_to image_tag('hex_grazing-poor.png', alt: "grazingPoor"), "#", id: "grazingPoor", class: "hexIcon" %>
-<%= link_to image_tag('hex_hills-home-trees.png', alt: "hillsHomeTrees"), "#", id: "hillsHomeTrees", class: "hexIcon" %>
-<%= link_to image_tag('hex_hills.png', alt: "hills"), "#", id: "hills", class: "hexIcon" %>
-<%= link_to image_tag('hex_hills_caves.png', alt: "hillsCaves"), "#", id: "hillsCaves", class: "hexIcon" %>
-<%= link_to image_tag('hex_mountains_caves.png', alt: "mountainsCaves"), "#", id: "mountainsCaves", class: "hexIcon" %>
-<%= link_to image_tag('hex_sand_dunes.png', alt: "sandDunes"), "#", id: "sandDunes", class: "hexIcon" %>
-<%= link_to image_tag('hex_snow_hills.png', alt: "snowHills"), "#", id: "snowHills", class: "hexIcon" %>
-<%= link_to image_tag('hex_swamp.png', alt: "swamp"), "#", id: "swamp", class: "hexIcon" %>
-<%= link_to image_tag('hex_tundra.png', alt: "tundra"), "#", id: "tundra", class: "hexIcon" %>
-<%= link_to image_tag('hex_water-coastal.png', alt: "waterCoastal"), "#", id: "waterCoastal", class: "hexIcon" %>
-<%= link_to image_tag('hex_water-sea.png', alt: "waterSea"), "#", id: "waterSea", class: "hexIcon" %>
+<%= content_tag(:div, class: "map") do %>
+  <canvas id="myCanvas" width="<%= @map.width =%>" height="<%= @map.length =%>"> </canvas>
+<!-- </br> -->
+<% end %>
+<%= content_tag(:div, class: "hexLegend") do %>
+  <%= link_to("#", id: "farmland", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Farmland") %>
+      <%= image_tag('hex_farmland.png', alt: "farmland") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_farmland.png', alt: "farmland"), "#", id: "farmland", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "mountain", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Mountain") %>
+      <%= image_tag('hex_mountain.png', alt: "mountain") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_mountain.png', alt: "mountain"), "#", id: "mountain", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "mountainsWorld", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "High Mountain") %>
+      <%= image_tag('hex_mountains_world.png', alt: "mountainsWorld") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_mountains_world.png', alt: "mountainsWorld"), "#", id: "mountainsWorld", class: "hexIcon" %>
+  -->
+ <%= link_to("#", id: "mountains", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Mountains") %>
+      <%= image_tag('hex_mountains.png', alt: "mountains") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_mountains.png', alt: "mountains"), "#", id: 'mountains', class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "badlands", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Badlands") %>
+      <%= image_tag('hex_badlands.png', alt: "badlands") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_badlands.png', alt: "badlands"), "#", id: "badlands", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "barren", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Barren") %>
+      <%= image_tag('hex_barren.png', alt: "barren") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_barren.png', alt: "barren"), "#", id: "barren", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "desertRocky", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Rocky Desert") %>
+      <%= image_tag('hex_desert-rocky.png', alt: "desertRocky") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_desert-rocky.png', alt: "forestHomeTrees"), "#", id: "desertRocky", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "forestHomeTrees", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Forest") %>
+      <%= image_tag('hex_forest-home-trees.png', alt: "forestHomeTrees") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_forest-home-trees.png', alt: "forestHomeTrees"), "#", id: "forestHomeTrees", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "glaciers", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Glaciers") %>
+      <%= image_tag('hex_glaciers.png', alt: "glaciers") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_glaciers.png', alt: "glaciers"), "#", id: "glaciers", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "grassland", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Grassland") %>
+      <%= image_tag('hex_grassland.png', alt: "grassland") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_grassland.png', alt: "grassland"), "#", id: "grassland", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "grazingChoice", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Choice Grazing") %>
+      <%= image_tag('hex_grazing-choice.png', alt: "grazingChoice") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_grazing-choice.png', alt: "grazingChoice"), "#", id: "grazingChoice", class: "hexIcon" %>
+  -->
+   <%= link_to("#", id: "grazingPoor", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Poor Grazing") %>
+      <%= image_tag('hex_grazing-poor.png', alt: "grazingPoor") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_grazing-poor.png', alt: "grazingPoor"), "#", id: "grazingPoor", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "hillsHomeTrees", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Forest Hills") %>
+      <%= image_tag('hex_hills-home-trees.png', alt: "hillsHomeTrees") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_hills-home-trees.png', alt: "hillsHomeTrees"), "#", id: "hillsHomeTrees", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "hills", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Hills") %>
+      <%= image_tag('hex_hills.png', alt: "hills") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_hills.png', alt: "hills"), "#", id: "hills", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "hillsCaves", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Hills With Caves") %>
+      <%= image_tag('hex_hills_caves.png', alt: "hillsCaves") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_hills_caves.png', alt: "hillsCaves"), "#", id: "hillsCaves", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "mountainsCaves", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Mountains With Caves") %>
+      <%= image_tag('hex_mountains_caves.png', alt: "mountainsCaves") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_mountains_caves.png', alt: "mountainsCaves"), "#", id: "mountainsCaves", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "sandDunes", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Sand Dunes") %>
+      <%= image_tag('hex_sand_dunes.png', alt: "sandDunes") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_sand_dunes.png', alt: "sandDunes"), "#", id: "sandDunes", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "snowHills", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Snow Hills") %>
+      <%= image_tag('hex_snow_hills.png', alt: "snowHills") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_snow_hills.png', alt: "snowHills"), "#", id: "snowHills", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "swamp", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Swamp") %>
+      <%= image_tag('hex_swamp.png', alt: "swamp") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_swamp.png', alt: "swamp"), "#", id: "swamp", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "tundra", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Tundra") %>
+      <%= image_tag('hex_tundra.png', alt: "tundra") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_tundra.png', alt: "tundra"), "#", id: "tundra", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "waterCoastal", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Coastal Water") %>
+      <%= image_tag('hex_water-coastal.png', alt: "waterCoastal") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_water-coastal.png', alt: "waterCoastal"), "#", id: "waterCoastal", class: "hexIcon" %>
+  -->
+  <%= link_to("#", id: "waterSea", class: "hexIcon") do %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= content_tag(:p, "Sea Water") %>
+      <%= image_tag('hex_water-sea.png', alt: "waterSea") %>
+    <% end %>
+  <% end %>
+  <!--
+  < %= link_to image_tag('hex_water-sea.png', alt: "waterSea"), "#", id: "waterSea", class: "hexIcon" %>
+  -->
+<% end %>
 
 </br>
 <%= link_to 'Show', @map %> |
