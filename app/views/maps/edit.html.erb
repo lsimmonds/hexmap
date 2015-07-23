@@ -16,6 +16,7 @@
   var context;
   var mouseDown = false;
   var currHexIcon = null;
+  var currAdnIcon = null;
   var hexes;
   var countryMode = false;
   var countryColor = null;
@@ -25,8 +26,11 @@
   var stateId = null;
   var pathMode = false;
   var pathStart = false;
+  var frontier=[];
+  var globalCounter=0;
 
-//hex_mining.png
+  var testEvent=null;
+  var testThis=null;
   //Preload Hex icons
   var farmland = new Image();
   farmland.src = "<%= asset_path('hex_farmland.png') %>"
@@ -72,6 +76,139 @@
   waterCoastal.src = "<%= asset_path('hex_water-coastal.png') %>"
   var waterSea = new Image();
   waterSea.src = "<%= asset_path('hex_water-sea.png') %>"
+  var MoorForest = new Image();
+  MoorForest.src = "<%= asset_path('hex_MoorForest.png') %>"
+  var blank = new Image();
+  blank.src = "<%= asset_path('hex_blank.png') %>"
+  var cactusHeavy = new Image();
+  cactusHeavy.src = "<%= asset_path('hex_cactus-heavy.png') %>"
+  var cactusLight = new Image();
+  cactusLight.src = "<%= asset_path('hex_cactus-light.png') %>"
+  var deadland = new Image();
+  deadland.src = "<%= asset_path('hex_deadland.png') %>"
+  var desertBlackSands = new Image();
+  desertBlackSands.src = "<%= asset_path('hex_desert-black-sands.png') %>"
+  var desertClay = new Image();
+  desertClay.src = "<%= asset_path('hex_desert-clay.png') %>"
+  var desertSandy = new Image();
+  desertSandy.src = "<%= asset_path('hex_desert-sandy.png') %>"
+  var fens = new Image();
+  fens.src = "<%= asset_path('hex_fens.png') %>"
+  var forestHeavyEvergreen = new Image();
+  forestHeavyEvergreen.src = "<%= asset_path('hex_forest-heavy-evergreen.png') %>"
+  var jungle = new Image();
+  jungle.src = "<%= asset_path('hex_jungle.png') %>"
+  var moor = new Image();
+  moor.src = "<%= asset_path('hex_moor.png') %>"
+  var mudbog = new Image();
+  mudbog.src = "<%= asset_path('hex_mudbog.png') %>"
+  var taiga = new Image();
+  taiga.src = "<%= asset_path('hex_taiga.png') %>"
+  var fungalForest = new Image();
+  fungalForest.src = "<%= asset_path('hex_underground_fungal_forest.png') %>"
+  var fungalJungle = new Image();
+  fungalJungle.src = "<%= asset_path('hex_underground_fungal_jungle.png') %>"
+  var fungalSwamp = new Image();
+  fungalSwamp.src = "<%= asset_path('hex_underground_fungal_swamp.png') %>"
+  var moss = new Image();
+  moss.src = "<%= asset_path('hex_underground_moss.png') %>"
+  var rocky = new Image();
+  rocky.src = "<%= asset_path('hex_underground_rocky.png') %>"
+  var solidRock = new Image();
+  solidRock.src = "<%= asset_path('hex_underground_sold_rock.png') %>"
+  var volcanicFormation = new Image();
+  volcanicFormation.src = "<%= asset_path('hex_volcanic_formation.png') %>"
+  var volcano = new Image();
+  volcano.src = "<%= asset_path('hex_volcano.png') %>"
+  //Add ons
+  var city = new Image();
+  city.src = "<%= asset_path('hex_city.png') %>"
+  var town = new Image();
+  town.src = "<%= asset_path('hex_town.png') %>"
+  var village = new Image();
+  village.src = "<%= asset_path('hex_village.png') %>"
+  var mining = new Image();
+  mining.src = "<%= asset_path('hex_mining.png') %>"
+  var track_2way0 = new Image();
+  track_2way0.src = "<%= asset_path('adn_rr_track_2way0.png') %>"
+  var track_2way120 = new Image();
+  track_2way120.src = "<%= asset_path('adn_rr_track_2way120.png') %>"
+  var track_2way60 = new Image();
+  track_2way60.src = "<%= asset_path('adn_rr_track_2way60.png') %>"
+  var track_3way = new Image();
+  track_3way.src = "<%= asset_path('adn_rr_track_3way.png') %>"
+  var track_left_t0 = new Image();
+  track_left_t0.src = "<%= asset_path('adn_rr_track_left_t0.png') %>"
+  var track_left_t120 = new Image();
+  track_left_t120.src = "<%= asset_path('adn_rr_track_left_t120.png') %>"
+  var track_left_t180 = new Image();
+  track_left_t180.src = "<%= asset_path('adn_rr_track_left_t180.png') %>"
+  var track_left_t240 = new Image();
+  track_left_t240.src = "<%= asset_path('adn_rr_track_left_t240.png') %>"
+  var track_left_t300 = new Image();
+  track_left_t300.src = "<%= asset_path('adn_rr_track_left_t300.png') %>"
+  var track_left_t60 = new Image();
+  track_left_t60.src = "<%= asset_path('adn_rr_track_left_t60.png') %>"
+  var track_right_t0 = new Image();
+  track_right_t0.src = "<%= asset_path('adn_rr_track_right_t0.png') %>"
+  var track_right_t120 = new Image();
+  track_right_t120.src = "<%= asset_path('adn_rr_track_right_t120.png') %>"
+  var track_right_t180 = new Image();
+  track_right_t180.src = "<%= asset_path('adn_rr_track_right_t180.png') %>"
+  var track_right_t240 = new Image();
+  track_right_t240.src = "<%= asset_path('adn_rr_track_right_t240.png') %>"
+  var track_right_t300 = new Image();
+  track_right_t300.src = "<%= asset_path('adn_rr_track_right_t300.png') %>"
+  var track_right_t60 = new Image();
+  track_right_t60.src = "<%= asset_path('adn_rr_track_right_t60.png') %>"
+  var track_straight0 = new Image();
+  track_straight0.src = "<%= asset_path('adn_rr_track_straight0.png') %>"
+  var track_straight120 = new Image();
+  track_straight120.src = "<%= asset_path('adn_rr_track_straight120.png') %>"
+  var track_straight60 = new Image();
+  track_straight60.src = "<%= asset_path('adn_rr_track_straight60.png') %>"
+  var track_turn0 = new Image();
+  track_turn0.src = "<%= asset_path('adn_rr_track_turn0.png') %>"
+  var track_turn120 = new Image();
+  track_turn120.src = "<%= asset_path('adn_rr_track_turn120.png') %>"
+  var track_turn180 = new Image();
+  track_turn180.src = "<%= asset_path('adn_rr_track_turn180.png') %>"
+  var track_turn240 = new Image();
+  track_turn240.src = "<%= asset_path('adn_rr_track_turn240.png') %>"
+  var track_turn300 = new Image();
+  track_turn300.src = "<%= asset_path('adn_rr_track_turn300.png') %>"
+  var track_turn60 = new Image();
+  track_turn60.src = "<%= asset_path('adn_rr_track_turn60.png') %>"
+
+  hexAddons = { "city": city,
+                "town": town,
+                "village": village,
+                "town": town,
+                "track_2way0": track_2way0,
+                "track_2way120": track_2way120,
+                "track_2way60": track_2way60,
+                "track_3way": track_3way,
+                "track_left_t0": track_left_t0,
+                "track_left_t120": track_left_t120,
+                "track_left_t180": track_left_t180,
+                "track_left_t240": track_left_t240,
+                "track_left_t300": track_left_t300,
+                "track_left_t60": track_left_t60,
+                "track_right_t0": track_right_t0,
+                "track_right_t120": track_right_t120,
+                "track_right_t180": track_right_t180,
+                "track_right_t240": track_right_t240,
+                "track_right_t300": track_right_t300,
+                "track_right_t60": track_right_t60,
+                "track_straight0": track_straight0,
+                "track_straight120": track_straight120,
+                "track_straight60": track_straight60,
+                "track_turn0": track_turn0,
+                "track_turn120": track_turn120,
+                "track_turn180": track_turn180,
+                "track_turn240": track_turn240,
+                "track_turn300": track_turn300,
+                "track_turn60": track_turn60 };
 
   hexTerrains = { "farmland": farmland,
                   "grazingChoice": grazingChoice,
@@ -94,7 +231,29 @@
                   "swamp": swamp,
                   "tundra": tundra,
                   "waterCoastal": waterCoastal,
-                  "waterSea": waterSea };
+                  "waterSea": waterSea,
+                  "MoorForest": MoorForest,
+                  "blank": blank,
+                  "cactusHeavy": cactusHeavy,
+                  "cactusLight": cactusLight,
+                  "deadland": deadland,
+                  "desertBlackSands": desertBlackSands,
+                  "desertClay": desertClay,
+                  "desertSandy": desertSandy,
+                  "fens": fens,
+                  "forestHeavyEvergreen": forestHeavyEvergreen,
+                  "jungle": jungle,
+                  "moor": moor,
+                  "mudbog": mudbog,
+                  "taiga": taiga,
+                  "fungalForest": fungalForest,
+                  "fungalJungle": fungalJungle,
+                  "fungalSwamp": fungalSwamp,
+                  "moss": moss,
+                  "rocky": rocky,
+                  "solidRock": solidRock,
+                  "volcanicFormation": volcanicFormation,
+                  "volcano": volcano };
 
   window.onload = function() {
       canvas = document.getElementById("myCanvas");
@@ -163,6 +322,7 @@ console.log("buttonCtx: "+JSON.stringify(buttonCtx));
       paintButton(cb,"rgba(0, 63, 0, 1)");
 
       var processBackgroundEvt = function(e) {
+console.log("e.type: "+e.type);
         down = false;
         var x;
         var y;
@@ -181,14 +341,21 @@ console.log("buttonCtx: "+JSON.stringify(buttonCtx));
 
         var result = hexLib.getReferencePoint(x - xOffset, y - yOffset);
         console.log('hexLib.getReferencePoint('+(x - xOffset)+', '+(y - yOffset)+'): '+JSON.stringify(result));
-console.log("currHexIcon: "+JSON.stringify(currHexIcon)+", pathMode: "+pathMode+", pathStart: "+pathStart+", countryMode: "+countryMode+", stateMode: "+stateMode);
+console.log("currAdnIcon: "+JSON.stringify(currAdnIcon)+", currHexIcon: "+JSON.stringify(currHexIcon)+", pathMode: "+pathMode+", pathStart: "+pathStart+", countryMode: "+countryMode+", stateMode: "+stateMode);
         if(currHexIcon) { 
           jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {image: currHexIcon, map_id: mapId, x: result.u, y: result.v}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
-          drawBackground({image: currHexIcon, map_id: mapId, x: result.u, y: result.v});
+          hexes[result.u][result.v].image=currHexIcon;
+        }
+        else if(currAdnIcon) { 
+          jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {map_id: mapId, x: result.u, y: result.v, overlay: currAdnIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
+          hexes[result.u][result.v].overlay=currAdnIcon;
+        }
+        if(currHexIcon || currAdnIcon) { 
+          drawBackground(hexes[result.u][result.v]);
         }
         else if(pathMode) {
           if(pathStart) {
-            findPath(context, pathStart, result);
+            findPath(context, pathStart, result, pickState);
             pathStart=false;
           }
           else {
@@ -199,14 +366,37 @@ console.log("currHexIcon: "+JSON.stringify(currHexIcon)+", pathMode: "+pathMode+
           pickCountry(context,result,countryColor,countryId);
         }
         else if(stateMode) {
+console.log("e.type: "+e.type);
           pickState(context,result,stateColor,stateId,countryId);
+          if(e.type=="dblclick") {
+            if(pathStart) {
+              if((pathStart.u==result.u) && (pathStart.v==result.v)) {
+console.log("call fillSpace");
+                fillSpace(context, result, pickState);
+                pathStart=false;
+              }
+              else {
+                findPath(context, pathStart, result, pickState);
+                pathStart=false;
+              }
+            }
+            else {
+              pathStart=result;
+            }
+          }
+//          else {
+//            pathStart=false;
+//          }
         }
-      }
+     }
 
      canvas.onmousedown = function(e) {
         mouseDown = true;
       };
-      canvas.onmouseup = function(e) {
+      canvas.ondblclick = function(e) {
+        processBackgroundEvt(e);
+      };
+       canvas.onmouseup = function(e) {
         mouseDown = false;
         processBackgroundEvt(e);
       };
@@ -224,6 +414,7 @@ console.log("e.target.id: "+e.target.id);
           //pathMode=true;
           pathMode=false;
           currHexIcon = null;
+          currAdnIcon = null;
           if(this.id.match(/yellow/i)) {
             countryColor="rgba(255, 255, 0, 0.25)";
             countryId=1;
@@ -264,7 +455,7 @@ console.log("stateId: "+stateId+", stateColor: "+stateColor);
                   stateColor="rgba(255, 0, 0, 0.25)";
                   break; 
                 case "4":
-                  stateId=12;
+                  stateId=13;
                   stateColor="rgba(255, 0, 0, 0.25)";
                   break; 
               }
@@ -324,9 +515,23 @@ console.log("stateId: "+stateId+", stateColor: "+stateColor);
           }
       });
 
-       $(".hexIcon").click(function(e) {
-console.log("this? "+this.id);
+      $(".hexIconBox").click(function(e) {
+testEvent=e;
+testThis=this;
+console.log("hexIcon.e "+JSON.stringify(e.target));
+console.log("e.target.id: "+e.target.id);
+console.log("hexIcon.this? "+this.id);
           setIcon(this.id);
+       });
+    };
+
+    $(".adnIconBox").click(function(e) {
+testEvent=e;
+testThis=this;
+console.log("adn hexIcon.e "+JSON.stringify(e.target));
+console.log("adn e.target.id: "+e.target.id);
+console.log("adnIcon.this? "+this.id);
+          setAdnIcon(this.id);
        });
     };
 
@@ -423,8 +628,100 @@ console.log("pickState: "+JSON.stringify(hexCoordinates)+", color: "+color+", st
       stateMode=false;
     }
 
-    function findPath(context, startHex, endHex) {
-console.log("findPath("+JSON.stringify(context)+", "+JSON.stringify(startHex)+", "+JSON.stringify(endHex)+")");
+
+    function setAdnIcon(fileName) {
+      currAdnIcon=fileName;
+      pathMode=false;
+      countryMode=false;
+      stateMode=false;
+    }
+
+    function fillSpace(context, hexCoordinates, setFunc) {
+      hex=hexes[hexCoordinates.u][hexCoordinates.v];
+      var startState=hex.province_id;
+      frontier=[];
+      __fillSpace(context, startState, hex, setFunc);
+      globalCounter=0;
+      for (var i = 0; i < hexes.length; i++) {
+        for (var j = 0; j < hexes[i].length; j++) {
+          drawBackground(hexes[i][j]);
+        }
+      }
+      drawBorders(hexes);
+    }
+
+    function __fillSpace(context, startState, hex, setFunc) {
+console.log("fillSpace, hex: "+JSON.stringify(hex)+", frontier: "+JSON.stringify(frontier));
+      if(hex.province_id == stateId) {
+        console.log("Same state!!!");
+        return;
+      }
+globalCounter++;
+if(globalCounter > 900) { return; }
+      if(above(hex) && !(frontier[above(hex).x] && frontier[above(hex).x][above(hex).y]) && above(hex).country_id==hex.country_id && above(hex).province_id==startState) {
+        hc={"u":above(hex).x,"v":above(hex).y};
+        if(!frontier[hc.u]) { frontier[hc.u]=[]; }
+        frontier[hc.u][hc.v]=true;
+        if(typeof(setFunc) == "function") {
+          setFunc(context,hc,stateColor,stateId,hex.country_id);
+        }
+        drawEdge(context,hc); 
+        __fillSpace(context, startState, above(hex), setFunc);
+      }
+      if(upperLeft(hex) && !(frontier[upperLeft(hex).x] && frontier[upperLeft(hex).x][upperLeft(hex).y]) && upperLeft(hex).country_id==hex.country_id && upperLeft(hex).province_id==startState) {
+        hc={"u":upperLeft(hex).x,"v":upperLeft(hex).y};
+        if(!frontier[hc.u]) { frontier[hc.u]=[]; }
+        frontier[hc.u][hc.v]=true;
+        if(typeof(setFunc) == "function") {
+          setFunc(context,hc,stateColor,stateId,hex.country_id);
+        }
+        drawEdge(context, hc); 
+        __fillSpace(context, startState, upperLeft(hex), setFunc);
+      }
+      if(upperRight(hex) && !(frontier[upperRight(hex).x] && frontier[upperRight(hex).x][upperRight(hex).y]) && upperRight(hex).country_id==hex.country_id && upperRight(hex).province_id==startState) {
+        hc={"u":upperRight(hex).x,"v":upperRight(hex).y};
+        if(!frontier[hc.u]) { frontier[hc.u]=[]; }
+        frontier[hc.u][hc.v]=true;
+        if(typeof(setFunc) == "function") {
+          setFunc(context,hc,stateColor,stateId,hex.country_id);
+        }
+        drawEdge(context, hc); 
+        __fillSpace(context, startState, upperRight(hex), setFunc);
+      }
+      if(lowerRight(hex) && !(frontier[lowerRight(hex).x] && frontier[lowerRight(hex).x][lowerRight(hex).y]) && lowerRight(hex).country_id==hex.country_id && lowerRight(hex).province_id==startState) {
+        hc={"u":lowerRight(hex).x,"v":lowerRight(hex).y};
+        if(!frontier[hc.u]) { frontier[hc.u]=[]; }
+        frontier[hc.u][hc.v]=true;
+        if(typeof(setFunc) == "function") {
+          setFunc(context,hc,stateColor,stateId,hex.country_id);
+        }
+        drawEdge(context, hc);
+        __fillSpace(context, startState, lowerRight(hex), setFunc);
+      }
+      if(lowerLeft(hex) && !(frontier[lowerLeft(hex).x] && frontier[lowerLeft(hex).x][lowerLeft(hex).y]) && lowerLeft(hex).country_id==hex.country_id && lowerLeft(hex).province_id==startState) {
+        hc={"u":lowerLeft(hex).x,"v":lowerLeft(hex).y};
+        if(!frontier[hc.u]) { frontier[hc.u]=[]; }
+        frontier[hc.u][hc.v]=true;
+        if(typeof(setFunc) == "function") {
+          setFunc(context,hc,stateColor,stateId,hex.country_id);
+        }
+        drawEdge(context, hc);
+        __fillSpace(context, startState, lowerLeft(hex), setFunc);
+      }
+      if(below(hex) && !(frontier[below(hex).x] && frontier[below(hex).x][below(hex).y]) && below(hex).country_id==hex.country_id && below(hex).province_id==startState) {
+        hc={"u":below(hex).x,"v":below(hex).y};
+        if(!frontier[hc.u]) { frontier[hc.u]=[]; }
+        frontier[hc.u][hc.v]=true;
+        if(typeof(setFunc) == "function") {
+          setFunc(context,hc,stateColor,stateId,hex.country_id);
+        }
+        drawEdge(context, hc); 
+        __fillSpace(context, startState, below(hex), setFunc);
+      }
+    }
+
+    function findPath(context, startHex, endHex, setFunc) {
+//console.log("findPath("+JSON.stringify(context)+", "+JSON.stringify(startHex)+", "+JSON.stringify(endHex)+", "+setFunc+")");
       var oppX;
       var oppY;
       var testX;
@@ -502,7 +799,11 @@ console.log("xUp: "+xUp+", yUp: "+yUp);
         }
 console.log("workingHex: "+JSON.stringify(workingHex)+", lastHex: "+JSON.stringify(lastHex));
         if(JSON.stringify(workingHex)!=JSON.stringify(lastHex)) {
-          drawEdge(context, workingHex);
+          drawEdge(context, workingHex); 
+//console.log("setFunc: "+setFunc);
+          if(typeof(setFunc) == "function") {
+            setFunc(context,workingHex,stateColor,stateId,countryId);
+          }
         }
         lastHex = { "u": workingHex.u, "v": workingHex.v };
       }
@@ -604,11 +905,11 @@ console.log("drawEdge: "+JSON.stringify(hexCoordinates));
     }
 
     function above(hex) {
-      return hexes[hex.x][hex.y-1];
+      return hexes[hex.x]?hexes[hex.x][hex.y-1]:null;
     }
 
     function below(hex) {
-      return hexes[hex.x][hex.y+1];
+      return hexes[hex.x]?hexes[hex.x][hex.y+1]:null;
     }
 
     function upperRight(hex) {
@@ -647,6 +948,101 @@ console.log("drawEdge: "+JSON.stringify(hexCoordinates));
       }
     }
 
+    function drawBorder(hex) {
+      var openPath=false;
+      var countryPaths = [];
+      var statePaths = [];
+      var center;
+  //line #6 context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
+  //line #1 context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
+  //line #2 context.lineTo((center.x + hexLib.b/2.0) + xOffset, center.y + yOffset);
+  //line #3 context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0) + yOffset);
+  //line #4 context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0)  + yOffset);
+  //line #5 context.lineTo((center.x - hexLib.b/2.0) + xOffset, center.y + yOffset);
+  //      context.lineWidth = edgeWidth;
+  //      context.strokeStyle = "#444";
+  
+      center = hexLib.getPixelCoordinates(hex.x, hex.y);
+      if(upperLeft(hex)) {
+        if(hex.country_id != upperLeft(hex).country_id) {
+          //Add Country border upper right
+          countryPaths.push({"start":{"x":(center.x - hexLib.b/2.0) + xOffset,"y":center.y + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+        }
+        else if(hex.province_id != upperLeft(hex).province_id) {
+          //Add State border upper right
+          statePaths.push({"start":{"x":(center.x - hexLib.b/2.0) + xOffset,"y":center.y + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+        }
+      }
+      if(above(hex)) {
+        if(hex.country_id != above(hex).country_id) {
+          //Add Country border up top
+          countryPaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+        }
+        else if(hex.province_id != above(hex).province_id) {
+          //Add State border up top
+          statePaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
+        }
+      }
+      if(upperRight(hex)) {
+        if(hex.country_id != upperRight(hex).country_id) {
+          //Add Country border up top
+          countryPaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+        }
+        else if(hex.province_id != upperRight(hex).province_id) {
+          //Add State border up top
+          statePaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+        }
+      }
+      if(lowerRight(hex)) {
+        if(hex.country_id != lowerRight(hex).country_id) {
+          //Add Country border up top
+          countryPaths.push({"start":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset}});
+        }
+        else if(hex.province_id != lowerRight(hex).province_id) {
+          //Add State border up top
+          statePaths.push({"start":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset}});
+        }
+      }
+      if(below(hex)) {
+        if(hex.country_id != below(hex).country_id) {
+          //Add Country border up top
+          countryPaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset}});
+        }
+        else if(hex.province_id != below(hex).province_id) {
+          //Add State border up top
+          statePaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset}});
+        }
+      }
+      if(lowerLeft(hex)) {
+        if(hex.country_id != lowerLeft(hex).country_id) {
+          //Add Country border up top
+          countryPaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset},"end":{"x":(center.x - hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+        }
+        else if(hex.province_id != lowerLeft(hex).province_id) {
+          //Add State border up top
+          statePaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset},"end":{"x":(center.x - hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
+        }
+      }
+      //Draw country borders
+      for (var w = 0; w < countryPaths.length; w++) {
+        context.beginPath();
+        context.moveTo(countryPaths[w].start.x,countryPaths[w].start.y);
+        context.lineTo(countryPaths[w].end.x,countryPaths[w].end.y);
+        context.lineWidth = edgeWidth*3;
+        context.strokeStyle = "#000";
+        context.stroke();   
+      }
+      //Draw state borders
+      for (var w = 0; w < statePaths.length; w++) {
+        context.beginPath();
+        context.moveTo(statePaths[w].start.x,statePaths[w].start.y);
+        context.lineTo(statePaths[w].end.x,statePaths[w].end.y);
+        context.lineWidth = edgeWidth*3;
+        context.strokeStyle = "#fff";
+        context.stroke();   
+      }
+    }
+
     function drawBorders(hexes) {
 console.log("drawBorders, hexes: "+typeof(hexes));
 console.log("drawBorders, hexes.length: "+hexes.length);
@@ -656,98 +1052,8 @@ console.log("drawBorders, hexes[0].length: "+hexes[0].length);
         for (var j = 0; j < hexes[i].length; j++) {
           if(!(hexes[i][j])) { continue; }
 //console.log("hexes["+i+"]["+j+"]: "+JSON.stringify(hexes[i][j]));
-          var openPath=false;
-          var countryPaths = [];
-          var statePaths = [];
-          var center;
-//line #6 context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
-//line #1 context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y - hexLib.a/2.0) + yOffset);
-//line #2 context.lineTo((center.x + hexLib.b/2.0) + xOffset, center.y + yOffset);
-//line #3 context.lineTo((center.x + hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0) + yOffset);
-//line #4 context.lineTo((center.x - hexLib.s/2.0) + xOffset, (center.y + hexLib.a/2.0)  + yOffset);
-//line #5 context.lineTo((center.x - hexLib.b/2.0) + xOffset, center.y + yOffset);
-//      context.lineWidth = edgeWidth;
-//      context.strokeStyle = "#444";
+          drawBorder(hexes[i][j]);
 
-          center = hexLib.getPixelCoordinates(hexes[i][j].x, hexes[i][j].y);
-          if(upperLeft(hexes[i][j])) {
-            if(hexes[i][j].country_id != upperLeft(hexes[i][j]).country_id) {
-              //Add Country border upper right
-              countryPaths.push({"start":{"x":(center.x - hexLib.b/2.0) + xOffset,"y":center.y + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
-            }
-            else if(hexes[i][j].province_id != upperLeft(hexes[i][j]).province_id) {
-              //Add State border upper right
-              statePaths.push({"start":{"x":(center.x - hexLib.b/2.0) + xOffset,"y":center.y + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
-            }
-          }
-          if(above(hexes[i][j])) {
-            if(hexes[i][j].country_id != above(hexes[i][j]).country_id) {
-              //Add Country border up top
-              countryPaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
-            }
-            else if(hexes[i][j].province_id != above(hexes[i][j]).province_id) {
-              //Add State border up top
-              statePaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset}});
-            }
-          }
-          if(upperRight(hexes[i][j])) {
-            if(hexes[i][j].country_id != upperRight(hexes[i][j]).country_id) {
-              //Add Country border up top
-              countryPaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
-            }
-            else if(hexes[i][j].province_id != upperRight(hexes[i][j]).province_id) {
-              //Add State border up top
-              statePaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y - hexLib.a/2.0) + yOffset},"end":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
-            }
-          }
-          if(lowerRight(hexes[i][j])) {
-            if(hexes[i][j].country_id != lowerRight(hexes[i][j]).country_id) {
-              //Add Country border up top
-              countryPaths.push({"start":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset}});
-            }
-            else if(hexes[i][j].province_id != lowerRight(hexes[i][j]).province_id) {
-              //Add State border up top
-              statePaths.push({"start":{"x":(center.x + hexLib.b/2.0) + xOffset, "y":center.y + yOffset},"end":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset}});
-            }
-          }
-          if(below(hexes[i][j])) {
-            if(hexes[i][j].country_id != below(hexes[i][j]).country_id) {
-              //Add Country border up top
-              countryPaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset}});
-            }
-            else if(hexes[i][j].province_id != below(hexes[i][j]).province_id) {
-              //Add State border up top
-              statePaths.push({"start":{"x":(center.x + hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0) + yOffset},"end":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset}});
-            }
-          }
-          if(lowerLeft(hexes[i][j])) {
-            if(hexes[i][j].country_id != lowerLeft(hexes[i][j]).country_id) {
-              //Add Country border up top
-              countryPaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset},"end":{"x":(center.x - hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
-            }
-            else if(hexes[i][j].province_id != lowerLeft(hexes[i][j]).province_id) {
-              //Add State border up top
-              statePaths.push({"start":{"x":(center.x - hexLib.s/2.0) + xOffset, "y":(center.y + hexLib.a/2.0)  + yOffset},"end":{"x":(center.x - hexLib.b/2.0) + xOffset, "y":center.y + yOffset}});
-            }
-          }
-          //Draw country borders
-          for (var w = 0; w < countryPaths.length; w++) {
-            context.beginPath();
-            context.moveTo(countryPaths[w].start.x,countryPaths[w].start.y);
-            context.lineTo(countryPaths[w].end.x,countryPaths[w].end.y);
-            context.lineWidth = edgeWidth*3;
-            context.strokeStyle = "#000";
-            context.stroke();   
-          }
-          //Draw state borders
-          for (var w = 0; w < statePaths.length; w++) {
-            context.beginPath();
-            context.moveTo(statePaths[w].start.x,statePaths[w].start.y);
-            context.lineTo(statePaths[w].end.x,statePaths[w].end.y);
-            context.lineWidth = edgeWidth*3;
-            context.strokeStyle = "#fff";
-            context.stroke();   
-          }
         }
       }
     }
@@ -838,205 +1144,513 @@ console.log("drawBorders, hexes[0].length: "+hexes[0].length);
   <canvas id="myCanvas" width="<%= @map.width =%>" height="<%= @map.length =%>"> </canvas>
 <!-- </br> -->
 <% end %>
-<%= content_tag(:div, class: "hexLegend") do %>
-  <%= link_to("#", id: "farmland", class: "hexIcon") do %>
+<%= content_tag(:div, class: "hexAddon") do %>
+  <%= link_to("#", id: "city", class: "adnIconBox") do %>
+      <%= content_tag(:p, "City") %>
     <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_city.png', alt: "city") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "town", class: "adnIconBox") do %>
+      <%= content_tag(:p, "Town") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_town.png', alt: "town") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "village", class: "adnIconBox") do %>
+      <%= content_tag(:p, "Village") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_village.png', alt: "village") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "mining", class: "adnIconBox") do %>
+      <%= content_tag(:p, "Mining") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_mining.png', alt: "mining") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_2way0", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_2way0") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_2way0.png', alt: "track_2way0") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_2way120", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_2way120") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_2way120.png', alt: "track_2way120") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_2way60", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_2way60") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_2way60.png', alt: "track_2way60") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_3way", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_3way") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_3way.png', alt: "track_3way") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_left_t0", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_left_t0") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_left_t0.png', alt: "track_left_t0") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_left_t120", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_left_t120") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_left_t120.png', alt: "track_left_t120") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_left_t180", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_left_t180") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_left_t180.png', alt: "track_left_t180") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_left_t240", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_left_t240") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_left_t240.png', alt: "track_left_t240") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_left_t300", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_left_t300") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_left_t300.png', alt: "track_left_t300") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_left_t60", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_left_t60") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_left_t60.png', alt: "track_left_t60") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_right_t0", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_right_t0") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_right_t0.png', alt: "track_right_t0") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_right_t120", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_right_t120") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_right_t120.png', alt: "track_right_t120") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_right_t180", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_right_t180") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_right_t180.png', alt: "track_right_t180") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_right_t240", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_right_t240") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_right_t240.png', alt: "track_right_t240") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_right_t300", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_right_t300") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_right_t300.png', alt: "track_right_t300") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_right_t60", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_right_t60") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_right_t60.png', alt: "track_right_t60") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_straight0", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_straight0") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_straight0.png', alt: "track_straight0") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_straight120", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_straight120") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_straight120.png', alt: "track_straight120") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_straight60", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_straight60") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_straight60.png', alt: "track_straight60") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_turn0", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_turn0") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_turn0.png', alt: "track_turn0") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_turn120", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_turn120") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_turn120.png', alt: "track_turn120") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_turn180", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_turn180") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_turn180.png', alt: "track_turn180") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_turn240", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_turn240") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_turn240.png', alt: "track_turn240") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_turn300", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_turn300") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_turn300.png', alt: "track_turn300") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "track_turn60", class: "adnIconBox") do %>
+      <%= content_tag(:p, "track_turn60") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('adn_rr_track_turn60.png', alt: "track_turn60") %>
+    <% end %>
+  <% end %>
+<% end %>
+<%= content_tag(:div, class: "hexLegend") do %>
+  <%= link_to("#", id: "farmland", class: "hexIconBox") do %>
       <%= content_tag(:p, "Farmland") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_farmland.png', alt: "farmland") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_farmland.png', alt: "farmland"), "#", id: "farmland", class: "hexIcon" %>
+  < %= link_to image_tag('hex_farmland.png', alt: "farmland"), "#", id: "farmland", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "mountain", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "mountain", class: "hexIconBox") do %>
       <%= content_tag(:p, "Mountain") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_mountain.png', alt: "mountain") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_mountain.png', alt: "mountain"), "#", id: "mountain", class: "hexIcon" %>
+  < %= link_to image_tag('hex_mountain.png', alt: "mountain"), "#", id: "mountain", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "mountainsWorld", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "mountainsWorld", class: "hexIconBox") do %>
       <%= content_tag(:p, "High Mountain") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_mountains_world.png', alt: "mountainsWorld") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_mountains_world.png', alt: "mountainsWorld"), "#", id: "mountainsWorld", class: "hexIcon" %>
+  < %= link_to image_tag('hex_mountains_world.png', alt: "mountainsWorld"), "#", id: "mountainsWorld", class: "hexIconBox" %>
   -->
- <%= link_to("#", id: "mountains", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+ <%= link_to("#", id: "mountains", class: "hexIconBox") do %>
       <%= content_tag(:p, "Mountains") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_mountains.png', alt: "mountains") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_mountains.png', alt: "mountains"), "#", id: 'mountains', class: "hexIcon" %>
+  < %= link_to image_tag('hex_mountains.png', alt: "mountains"), "#", id: 'mountains', class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "badlands", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "badlands", class: "hexIconBox") do %>
       <%= content_tag(:p, "Badlands") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_badlands.png', alt: "badlands") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_badlands.png', alt: "badlands"), "#", id: "badlands", class: "hexIcon" %>
+  < %= link_to image_tag('hex_badlands.png', alt: "badlands"), "#", id: "badlands", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "barren", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "barren", class: "hexIconBox") do %>
       <%= content_tag(:p, "Barren") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_barren.png', alt: "barren") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_barren.png', alt: "barren"), "#", id: "barren", class: "hexIcon" %>
+  < %= link_to image_tag('hex_barren.png', alt: "barren"), "#", id: "barren", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "desertRocky", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "desertRocky", class: "hexIconBox") do %>
       <%= content_tag(:p, "Rocky Desert") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_desert-rocky.png', alt: "desertRocky") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_desert-rocky.png', alt: "forestHomeTrees"), "#", id: "desertRocky", class: "hexIcon" %>
+  < %= link_to image_tag('hex_desert-rocky.png', alt: "forestHomeTrees"), "#", id: "desertRocky", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "forestHomeTrees", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "forestHomeTrees", class: "hexIconBox") do %>
       <%= content_tag(:p, "Forest") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_forest-home-trees.png', alt: "forestHomeTrees") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_forest-home-trees.png', alt: "forestHomeTrees"), "#", id: "forestHomeTrees", class: "hexIcon" %>
+  < %= link_to image_tag('hex_forest-home-trees.png', alt: "forestHomeTrees"), "#", id: "forestHomeTrees", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "glaciers", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "glaciers", class: "hexIconBox") do %>
       <%= content_tag(:p, "Glaciers") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_glaciers.png', alt: "glaciers") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_glaciers.png', alt: "glaciers"), "#", id: "glaciers", class: "hexIcon" %>
+  < %= link_to image_tag('hex_glaciers.png', alt: "glaciers"), "#", id: "glaciers", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "grassland", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "grassland", class: "hexIconBox") do %>
       <%= content_tag(:p, "Grassland") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_grassland.png', alt: "grassland") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_grassland.png', alt: "grassland"), "#", id: "grassland", class: "hexIcon" %>
+  < %= link_to image_tag('hex_grassland.png', alt: "grassland"), "#", id: "grassland", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "grazingChoice", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "grazingChoice", class: "hexIconBox") do %>
       <%= content_tag(:p, "Choice Grazing") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_grazing-choice.png', alt: "grazingChoice") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_grazing-choice.png', alt: "grazingChoice"), "#", id: "grazingChoice", class: "hexIcon" %>
+  < %= link_to image_tag('hex_grazing-choice.png', alt: "grazingChoice"), "#", id: "grazingChoice", class: "hexIconBox" %>
   -->
-   <%= link_to("#", id: "grazingPoor", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+   <%= link_to("#", id: "grazingPoor", class: "hexIconBox") do %>
       <%= content_tag(:p, "Poor Grazing") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_grazing-poor.png', alt: "grazingPoor") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_grazing-poor.png', alt: "grazingPoor"), "#", id: "grazingPoor", class: "hexIcon" %>
+  < %= link_to image_tag('hex_grazing-poor.png', alt: "grazingPoor"), "#", id: "grazingPoor", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "hillsHomeTrees", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "hillsHomeTrees", class: "hexIconBox") do %>
       <%= content_tag(:p, "Forest Hills") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_hills-home-trees.png', alt: "hillsHomeTrees") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_hills-home-trees.png', alt: "hillsHomeTrees"), "#", id: "hillsHomeTrees", class: "hexIcon" %>
+  < %= link_to image_tag('hex_hills-home-trees.png', alt: "hillsHomeTrees"), "#", id: "hillsHomeTrees", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "hills", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "hills", class: "hexIconBox") do %>
       <%= content_tag(:p, "Hills") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_hills.png', alt: "hills") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_hills.png', alt: "hills"), "#", id: "hills", class: "hexIcon" %>
+  < %= link_to image_tag('hex_hills.png', alt: "hills"), "#", id: "hills", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "hillsCaves", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "hillsCaves", class: "hexIconBox") do %>
       <%= content_tag(:p, "Hills With Caves") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_hills_caves.png', alt: "hillsCaves") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_hills_caves.png', alt: "hillsCaves"), "#", id: "hillsCaves", class: "hexIcon" %>
+  < %= link_to image_tag('hex_hills_caves.png', alt: "hillsCaves"), "#", id: "hillsCaves", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "mountainsCaves", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "mountainsCaves", class: "hexIconBox") do %>
       <%= content_tag(:p, "Mountains With Caves") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_mountains_caves.png', alt: "mountainsCaves") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_mountains_caves.png', alt: "mountainsCaves"), "#", id: "mountainsCaves", class: "hexIcon" %>
+  < %= link_to image_tag('hex_mountains_caves.png', alt: "mountainsCaves"), "#", id: "mountainsCaves", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "sandDunes", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "sandDunes", class: "hexIconBox") do %>
       <%= content_tag(:p, "Sand Dunes") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_sand_dunes.png', alt: "sandDunes") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_sand_dunes.png', alt: "sandDunes"), "#", id: "sandDunes", class: "hexIcon" %>
+  < %= link_to image_tag('hex_sand_dunes.png', alt: "sandDunes"), "#", id: "sandDunes", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "snowHills", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "snowHills", class: "hexIconBox") do %>
       <%= content_tag(:p, "Snow Hills") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_snow_hills.png', alt: "snowHills") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_snow_hills.png', alt: "snowHills"), "#", id: "snowHills", class: "hexIcon" %>
+  < %= link_to image_tag('hex_snow_hills.png', alt: "snowHills"), "#", id: "snowHills", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "swamp", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "swamp", class: "hexIconBox") do %>
       <%= content_tag(:p, "Swamp") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_swamp.png', alt: "swamp") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_swamp.png', alt: "swamp"), "#", id: "swamp", class: "hexIcon" %>
+  < %= link_to image_tag('hex_swamp.png', alt: "swamp"), "#", id: "swamp", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "tundra", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "tundra", class: "hexIconBox") do %>
       <%= content_tag(:p, "Tundra") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_tundra.png', alt: "tundra") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_tundra.png', alt: "tundra"), "#", id: "tundra", class: "hexIcon" %>
+  < %= link_to image_tag('hex_tundra.png', alt: "tundra"), "#", id: "tundra", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "waterCoastal", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "waterCoastal", class: "hexIconBox") do %>
       <%= content_tag(:p, "Coastal Water") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_water-coastal.png', alt: "waterCoastal") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_water-coastal.png', alt: "waterCoastal"), "#", id: "waterCoastal", class: "hexIcon" %>
+  < %= link_to image_tag('hex_water-coastal.png', alt: "waterCoastal"), "#", id: "waterCoastal", class: "hexIconBox" %>
   -->
-  <%= link_to("#", id: "waterSea", class: "hexIcon") do %>
-    <%= content_tag(:div, class: "hexIcon") do %>
+  <%= link_to("#", id: "waterSea", class: "hexIconBox") do %>
       <%= content_tag(:p, "Sea Water") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
       <%= image_tag('hex_water-sea.png', alt: "waterSea") %>
     <% end %>
   <% end %>
   <!--
-  < %= link_to image_tag('hex_water-sea.png', alt: "waterSea"), "#", id: "waterSea", class: "hexIcon" %>
+  < %= link_to image_tag('hex_water-sea.png', alt: "waterSea"), "#", id: "waterSea", class: "hexIconBox" %>
   -->
+  <%= link_to("#", id: "MoorForest", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Moor Forest") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_MoorForest.png', alt: "MoorForest") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "blank", class: "hexIconBox") do %>
+      <%= content_tag(:p, "blank") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_blank.png', alt: "blank") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "cactusHeavy", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Cactus Heavy") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_cactus-heavy.png', alt: "cactusHeavy") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "cactusLight", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Cactus Light") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_cactus-light.png', alt: "cactusLight") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "deadland", class: "hexIconBox") do %>
+      <%= content_tag(:p, "deadland") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_deadland.png', alt: "deadland") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "desertBlackSands", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Desert Black Sands") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_desert-black-sands.png', alt: "desertBlackSands") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "desertClay", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Desert Clay") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_desert-clay.png', alt: "desertClay") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "desertSandy", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Desert Sandy") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_desert-sandy.png', alt: "desertSandy") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "fens", class: "hexIconBox") do %>
+      <%= content_tag(:p, "fens") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_fens.png', alt: "fens") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "forestHeavyEvergreen", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Forest Evergreen") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_forest-heavy-evergreen.png', alt: "forestHeavyEvergreen") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "jungle", class: "hexIconBox") do %>
+      <%= content_tag(:p, "jungle") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_jungle.png', alt: "jungle") %>
+    <% end %>
+  <% end %>
+ <%= link_to("#", id: "moor", class: "hexIconBox") do %>
+      <%= content_tag(:p, "moor") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_moor.png', alt: "moor") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "mudbog", class: "hexIconBox") do %>
+      <%= content_tag(:p, "mudbog") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_mudbog.png', alt: "mudbog") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "taiga", class: "hexIconBox") do %>
+      <%= content_tag(:p, "taiga") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_taiga.png', alt: "taiga") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "fungalForest", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Fungal Forest") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_underground_fungal_forest.png', alt: "fungalForest") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "fungalJungle", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Fungal Jungle") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_underground_fungal_jungle.png', alt: "fungalJungle") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "fungalSwamp", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Fungal Swamp") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_underground_fungal_swamp.png', alt: "fungalSwamp") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "moss", class: "hexIconBox") do %>
+      <%= content_tag(:p, "moss") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_underground_moss.png', alt: "moss") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "rocky", class: "hexIconBox") do %>
+      <%= content_tag(:p, "rocky") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_underground_rocky.png', alt: "rocky") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "solidRock", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Solid Rock") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_underground_sold_rock.png', alt: "solidRock") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "volcanicFormation", class: "hexIconBox") do %>
+      <%= content_tag(:p, "Volcanic Formation") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_volcanic_formation.png', alt: "volcanicFormation") %>
+    <% end %>
+  <% end %>
+  <%= link_to("#", id: "volcano", class: "hexIconBox") do %>
+      <%= content_tag(:p, "volcano") %>
+    <%= content_tag(:div, class: "hexIcon") do %>
+      <%= image_tag('hex_volcano.png', alt: "volcano") %>
+    <% end %>
+  <% end %>
 <% end %>
 
 </br>

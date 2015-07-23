@@ -21,7 +21,7 @@ logger.debug "in show, hex: "+@hex.inspect
   # GET /hexes/1
   # GET /hexes/1.json
   def show_map
-    @hexes = Hex.where(:map_id => params[:map_id])
+    @hexes = Hex.where(:map_id => params[:map_id]).select("id, name, description, map_id, country_id, province_id, image, background, overlay, x, y, local_image")
     render :json => @hexes
   end
 
@@ -47,9 +47,9 @@ logger.debug "in show, hex: "+@hex.inspect
     respond_to do |format|
       if @hex.save
         #format.html { redirect_to @hex, notice: 'Hex was successfully created.' }
-        format.html { render :json => @hex, status: :created }
+        format.html { render :json => @hex.to_json(:only => [:id, :name, :description, :map_id, :country_id, :province_id, :image, :background, :overlay, :x, :y, :local_image]), status: :created }
         #format.json { render :show, status: :created, location: @hex }
-        format.json { render :json => @hex, status: :created }
+        format.json { render :json => @hex.to_json(:only => [:id, :name, :description, :map_id, :country_id, :province_id, :image, :background, :overlay, :x, :y, :local_image]), status: :created }
       else
         format.html { render :new }
         format.json { render json: @hex.errors, status: :unprocessable_entity }
@@ -60,12 +60,12 @@ logger.debug "in show, hex: "+@hex.inspect
   # PATCH/PUT /hexes/1
   # PATCH/PUT /hexes/1.json
   def update
-logger.debug "in update, hex: "+@hex.inspect
+logger.debug "in update, hex: "+@hex.inspect+" hex_params: "+hex_params.inspect
     respond_to do |format|
       if @hex.update(hex_params)
         #format.html { redirect_to @hex, notice: 'Hex was successfully updated.' }
-        format.html { render :json => @hex, status: :ok }
-        format.json { render :json => @hex, status: :ok }
+        format.html { render :json => @hex.to_json(:only => [:id, :name, :description, :map_id, :country_id, :province_id, :image, :background, :overlay, :x, :y, :local_image]), status: :ok }
+        format.json { render :json => @hex.to_json(:only => [:id, :name, :description, :map_id, :country_id, :province_id, :image, :background, :overlay, :x, :y, :local_image]), status: :ok }
       else
         format.html { render :edit }
         format.json { render json: @hex.errors, status: :unprocessable_entity }
@@ -87,10 +87,12 @@ logger.debug "in update, hex: "+@hex.inspect
     # Use callbacks to share common setup or constraints between actions.
     def set_hex
       @hex = Hex.find_by_map_id_and_x_and_y(params[:map_id],params[:x],params[:y])
+      #@hex = Hex.where(["map_id = ? AND x = ? AND y = ?", params[:map_id],params[:x],params[:y]]).select("id, name, description, map_id, country_id, province_id, image, background, overlay, x, y, local_image")
+logger.debug "in set_hex, hex: "+@hex.inspect
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def hex_params
-      params.require(:hex).permit(:map_id,:x,:y,:name,:image,:country_id,:province_id)
+      params.require(:hex).permit(:map_id,:x,:y,:name,:image,:country_id,:province_id,:overlay)
     end
 end
