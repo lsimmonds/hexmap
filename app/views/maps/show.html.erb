@@ -42,13 +42,10 @@
           x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
           y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
         }
-        console.log('x: '+x+' y: '+y);
         x -= canvas.offsetLeft;
         y -= canvas.offsetTop;
-        console.log('x: '+x+' y: '+y);
 
         var result = hex.getReferencePoint(x - xOffset, y - yOffset);
-        console.log('hex.getReferencePoint('+(x - xOffset)+', '+(y - yOffset)+'): '+JSON.stringify(result));
       }
 
 /*
@@ -69,20 +66,16 @@
     };
 
     var drawBackground = function(thisHex) {
-console.log("drawBackground("+JSON.stringify(thisHex)+")");
       var img = hexTerrains[thisHex.image];
-console.log("hex.getPixelCoordinates("+thisHex.x+","+thisHex.y+")");
+      if ( img === undefined) {
+        return;
+      }
       var center = hex.getPixelCoordinates(thisHex.x, thisHex.y);
-console.log('center: '+JSON.stringify(center));
       imx = (center.x - hex.s / 2.0) - 5.81 + xOffset;
       imy = (center.y - hex.a / 2.0) + 0.4 + yOffset;
-console.log('imx: '+imx+' imy: '+imy);
       addonX = 4;
       addonY= 2.5;
-console.log("img: "+JSON.stringify(img.src));
-      console.log("context.drawImage("+img+","+imx+","+imy+","+(hex.hexagon_narrow_width+addonX)+","+(hex.hexagon_narrow_width+addonY)+")");
-      context.drawImage(img,imx,imy,hex.hexagon_narrow_width+addonX,hex.hexagon_narrow_width+addonY);
-console.log(Math.round(thisHex.x) + ", " + Math.round(thisHex.y));
+      img?context.drawImage(img,imx,imy,hex.hexagon_narrow_width+addonX,hex.hexagon_narrow_width+addonY):null;
     }
 
      function drawHex(context, hexCoordinates) {

@@ -29,24 +29,18 @@
           x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
           y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
         }
-        console.log('x: '+x+' y: '+y);
         x -= canvas.offsetLeft;
         y -= canvas.offsetTop;
-        console.log('x: '+x+' y: '+y);
 
         var result = hex.getReferencePoint(x - xOffset, y - yOffset);
-        console.log('hex.getReferencePoint('+(x - xOffset)+', '+(y - yOffset)+'): '+JSON.stringify(result));
         //$.get("/hexes/1/"+result.u+"/"+result.v, function( data ) { console.log( "Data Returned: " + data ); });
         var img = new Image();
         img.src = "<%= asset_path('CultFarm.png') %>";
         var center = hex.getPixelCoordinates(result.u, result.v);
-        console.log('center: '+JSON.stringify(center));
         imx = (center.x - hex.s / 2.0) - 6.75 + xOffset;
         imy = (center.y - hex.a / 2.0) - 0.4 + yOffset;
-        console.log('imx: '+imx+' imy: '+imy);
         addon = 5.75;
         context.drawImage(img,imx,imy,hex.hexagon_narrow_width+addon,hex.hexagon_narrow_width+addon);
-        console.log(Math.round(result.u) + ", " + Math.round(result.v));
       }
 
       canvas.onmousedown = function(e) {
@@ -98,11 +92,6 @@
       var topLeftHex = hex.getReferencePoint(0 - xOffset,0 - yOffset);
       var bottomLeftHex = hex.getReferencePoint(0 - xOffset,<%= @map.length =%> - yOffset);
       var topRightHex = hex.getReferencePoint(<%= @map.width =%> - xOffset,0 - yOffset);
-console.log(" rows: "+rows);
-console.log(" columns: "+columns);
-console.log(" topLeftHex: "+JSON.stringify(topLeftHex));
-console.log(" bottomLeftHex: "+JSON.stringify(bottomLeftHex));
-console.log(" topRightHex: "+JSON.stringify(topRightHex));
       var offset = 0;
       for (var i = topLeftHex.u - 1; i <= topRightHex.u + 1; i++) {
         for (var j = topLeftHex.v - 1 - Math.round(offset); j < bottomLeftHex.v + 1 - Math.round(offset); j++) {

@@ -40,6 +40,7 @@ class CountriesController < ApplicationController
   # PATCH/PUT /countries/1
   # PATCH/PUT /countries/1.json
   def update
+logger.debug "Update country_params: "+country_params.inspect
     respond_to do |format|
       if @country.update(country_params)
         format.html { redirect_to @country, notice: 'Country was successfully updated.' }
@@ -64,11 +65,13 @@ class CountriesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_country
+logger.debug "set_country id: "+params[:id]
       @country = Country.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def country_params
-      params[:country]
+logger.debug "country_params: "+params.inspect
+      params[:country].permit(:id,:name,:description,:color,:color_name);
     end
 end

@@ -11,3 +11,4 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.precompile += %w( search.js )
 Rails.application.config.assets.precompile += %w( default.js )
 Rails.application.config.assets.precompile += %w( jquery-2.1.3.min.js )
+Rails.application.config.assets.precompile += %w( maps.js )

@@ -1,3 +1,5 @@
+<%= javascript_include_tag 'jquery-2.1.3.min' %>
+<%= csrf_meta_tag %>
 <%= form_for(@map) do |f| %>
   <% if @map.errors.any? %>
     <div id="error_explanation">
@@ -11,6 +13,91 @@
     </div>
   <% end %>
 
+  <div class="map_name">
+    <p>Name:</p>
+    <%= f.text_field :name, :value => @map.name %>
+  </div>
+  <div class="map_length">
+    <p>Length:</p>
+    <%= f.text_field :length, :value => @map.length %>
+  </div>
+  <div class="map_width">
+    <p>Width:</p>
+    <%= f.text_field :width, :value => @map.width %>
+  </div>
+
+  <% if !@map.countries.empty? %>
+        <div class="country_list">
+          <% @map.countries.each do |country| %>
+            <div class="country_element">Name: <div class="country_data" id="country_name_<%= country.id %>"><%= country.name %>&nbsp;</div></div>
+            <div class="country_element">Description: <div class="country_data" id="country_description_<%= country.id %>"><%= country.description %>&nbsp;</div></div>
+            <div class="country_element">Color: <div class="country_data" id="country_color_<%= country.id %>"><%= country.color %>&nbsp;&nbsp;</div></div>
+            <div class="country_element">Color Name:<div class="country_data" id="country_color_name_<%= country.id %>"><%= country.color_name %>&nbsp;</div></div>
+            </br>
+            <div class="province_list">
+              <% country.provinces.each do |province| %>
+                <div class="province_element">Name: <div class="province_data" id="province_name_<%= province.id %>"><%= province.name %>&nbsp;</div></div>
+                <div class="province_element">Description: <div class="province_data" id="province_description_<%= province.id %>"><%= province.description %>&nbsp;</div></div>
+                <div class="province_element">Color: <div class="province_data" id="province_color_<%= province.id %>"><%= province.color %>&nbsp;&nbsp;</div></div>
+                <div class="province_element">Color Name:<div class="province_data" id="province_color_name_<%= province.id %>"><%= province.color_name %>&nbsp;</div></div>
+                </br>
+              <% end %>
+            </div>
+            <div class="province_form">
+              <%= form_for(Province.new, :url => {:action => "update_properties"},:html => {:method => "post"}) do |p| %>
+                <%= hidden_field_tag :map, @map.to_json %>
+                <%= hidden_field_tag :country, country.to_json %>
+                <div class="province_element">
+                  <p>Name:</p>
+                  <%= p.text_field :name %>
+                </div>
+                <div class="province_element">
+                  <p>Description:</p>
+                  <%= p.text_field :description %>
+                  </div>
+                <div class="province_element">
+                  <p>Color:</p>
+                  <%= p.text_field :color %>
+                </div>
+                <div class="province_element">
+                  <p>Color Name:</p>
+                  <%= p.text_field :color_name %>
+                </div>
+                <div class="province_submit">
+                  <%= p.submit %>
+                </div>
+                </br>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+  <% end %>
+  <% if !current_page?(action: 'new') %>
+    <%= form_for(Country.new, :url => {:action => "update"},:html => {:method => "put"}) do |c| %>
+      <% @map.attributes.each do |key,value| %>
+        <%= hidden_field_tag "map[#{key}]", value %>
+      <% end %>
+      <div class="country_element">
+        <p>Name:</p>
+        <%= c.text_field :name %>
+      </div>
+      <div class="country_element">
+        <p>Description:</p>
+        <%= c.text_field :description %>
+      </div>
+      <div class="country_element">
+        <p>Color:</p>
+        <%= c.text_field :color %>
+      </div>
+        <div class="country_element">
+        <p>Color Name:</p>
+        <%= c.text_field :color_name %>
+      </div>
+      <div class="actions">
+        <%= c.submit %>
+      </div>
+    <% end %>
+  <% end %>
   <div class="actions">
     <%= f.submit %>
   </div>

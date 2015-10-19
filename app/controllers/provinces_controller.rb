@@ -69,6 +69,7 @@ class ProvincesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def province_params
-      params[:province]
+logger.debug "province_params: "+params.inspect
+      params[:province].permit(:id,:name,:description,:color,:color_name);
     end
 end

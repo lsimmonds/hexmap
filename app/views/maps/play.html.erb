@@ -1,5 +1,5 @@
 <%= javascript_include_tag 'jquery-2.1.3.min' %>
-<h1>Editing Map</h1>
+<h1>Play Test</h1>
 
 <p id="notice"><%= notice %></p>
 <%= render 'login' %>\
@@ -17,11 +17,9 @@
   var hexLib;
   var context;
   var mouseDown = false;
-  var currHexIcon = null;
   var currAdnIcon = null;
   var currMbuIcon = null;
   var hexes;
-  var countryMode = false;
   var countryColor = null;
   var countryId = null;
   var stateMode = false;
@@ -70,40 +68,53 @@
   };
 
   window.onload = function() {
-      canvas = document.getElementById("myCanvas");
-      hexLib = new hexDefinition(edgeSize);
-      render();
-      var paintButton = function(buttonCanvas,color,doBorder) {
-        buttonCtx = buttonCanvas.getContext('2d');
-        //buttonCtx.beginPath();
-        //buttonCtx.clearRect(0, 0, 40, 30);
-        buttonCtx.fillStyle = color;
-        buttonCtx.fillRect(0,0,buttonCanvas.width,buttonCanvas.height);
-        if(doBorder) {
-          buttonCtx.moveTo(0,0);
-          buttonCtx.lineTo(0,buttonCanvas.height);
-          buttonCtx.lineTo(buttonCanvas.width,buttonCanvas.height);
-          buttonCtx.lineTo(buttonCanvas.width,0);
-          buttonCtx.lineTo(0,0);
-          buttonCtx.lineWidth = 3;
-          buttonCtx.strokeStyle = "#444";
-          buttonCtx.stroke();   
-        }
-      };
-      //Paint country buttons
-  <% @map.countries.each do |country| %>
-      cb = document.getElementById("countryButton<%= country.color_name %>");
-      paintButton(cb,"<%= country.color %>");
-      //Paint state buttons
-    <% country.provinces.each do |province| %>
-      cb = document.getElementById("stateButton<%= province.color_name %>");
-      paintButton(cb,"<%= province.color %>");
-    <% end %>
-  <% end %>
-      cb = document.getElementById("countryButtonClear");
-      paintButton(cb,"rgba(255, 255, 255, 1)",true);
+    canvas = document.getElementById("myCanvas");
+    hexLib = new hexDefinition(edgeSize);
+    render();
+    var paintButton = function(buttonCanvas,color,doBorder) {
+      buttonCtx = buttonCanvas.getContext('2d');
+    //buttonCtx.beginPath();
+    //buttonCtx.clearRect(0, 0, 40, 30);
+      buttonCtx.fillStyle = color;
+      buttonCtx.fillRect(0,0,buttonCanvas.width,buttonCanvas.height);
+      if(doBorder) {
+        buttonCtx.moveTo(0,0);
+        buttonCtx.lineTo(0,buttonCanvas.height);
+        buttonCtx.lineTo(buttonCanvas.width,buttonCanvas.height);
+        buttonCtx.lineTo(buttonCanvas.width,0);
+        buttonCtx.lineTo(0,0);
+        buttonCtx.lineWidth = 3;
+        buttonCtx.strokeStyle = "#444";
+        buttonCtx.stroke();   
+      }
+    };
 
-      var processBackgroundEvt = function(e) {
+    $(".adnIconBox").click(function(e) {
+      setAdnIcon(this.id);
+    });
+
+    $(".mbuIconBox").click(function(e) {
+      setMbuIcon(this.id);
+    });
+
+    canvas.onmousedown = function(e) {
+      mouseDown = true;
+    };
+    canvas.ondblclick = function(e) {
+      processBackgroundEvt(e);
+    };
+    canvas.onmouseup = function(e) {
+      mouseDown = false;
+      processBackgroundEvt(e);
+    };
+    canvas.onmousemove = function(e) {
+      if(mouseDown) {
+        processBackgroundEvt(e);
+      };
+    };
+  };
+
+    var processBackgroundEvt = function(e) {
         down = false;
         var x;
         var y;
@@ -119,20 +130,7 @@
         y -= canvas.offsetTop;
 
         var result = hexLib.getReferencePoint(x - xOffset, y - yOffset);
-        if(currHexIcon) { 
-          jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {image: currHexIcon, map_id: mapId, x: result.u, y: result.v}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
-          if(typeof hexes[result.u] == "undefined") {
-            hexes[result.u]=[];
-          }
-          if(typeof hexes[result.u][result.v] == "undefined") {
-            hexes[result.u][result.v]={};
-            hexes[result.u][result.v].map_id=mapId;
-            hexes[result.u][result.v].x=result.u;
-            hexes[result.u][result.v].y=result.v;
-          }
-          hexes[result.u][result.v].image=currHexIcon;
-        }
-        else if(currAdnIcon) { 
+        if(currAdnIcon) { 
           jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {map_id: mapId, x: result.u, y: result.v, overlay: currAdnIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
           hexes[result.u][result.v].overlay=currAdnIcon;
         }
@@ -140,7 +138,7 @@
           jQuery.post("/hexes/"+mapId+"/"+result.u+"/"+result.v, {hex: {map_id: mapId, x: result.u, y: result.v, mobile_unit: currMbuIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
           hexes[result.u][result.v].mobile_unit=currMbuIcon;
         }
-        if(currHexIcon || currAdnIcon || currMbuIcon) { 
+        if(currAdnIcon || currMbuIcon) { 
           drawBackground(hexes[result.u][result.v]);
         }
         else if(pathMode) {
@@ -152,231 +150,9 @@
             pathStart=result;
           }
         }
-        else if(countryMode) {
-          pickCountry(context,result,countryColor,countryId);
-        }
-        else if(stateMode) {
-          pickState(context,result,stateColor,stateId,countryId);
-          if(e.type=="dblclick") {
-            if(pathStart) {
-              if((pathStart.u==result.u) && (pathStart.v==result.v)) {
-                fillSpace(context, result, pickState);
-                pathStart=false;
-              }
-              else {
-                findPath(context, pathStart, result, pickState);
-                pathStart=false;
-              }
-            }
-            else {
-              pathStart=result;
-            }
-          }
-//          else {
-//            pathStart=false;
-//          }
-        }
      }
 
-     canvas.onmousedown = function(e) {
-        mouseDown = true;
-      };
-      canvas.ondblclick = function(e) {
-        processBackgroundEvt(e);
-      };
-       canvas.onmouseup = function(e) {
-        mouseDown = false;
-        processBackgroundEvt(e);
-      };
-      canvas.onmousemove = function(e) {
-        if(mouseDown) {
-          processBackgroundEvt(e);
-        };
-      };
-
-      $(".countryBorder").click(function(e) {
-          countryMode=true;
-          stateMode=false;
-          //pathMode=true;
-          pathMode=false;
-          currHexIcon = null;
-          currAdnIcon = null;
-          if(this.id.match(/yellow/i)) {
-            countryColor="rgba(255, 255, 0, 0.25)";
-            countryId=1;
-            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
-              countryMode=false;
-              stateMode=true;
-              switch(arr[1]) {
-                case "1":
-                  stateId=1;
-                  stateColor="rgba(255, 255, 0, 0.25)";
-                  break; 
-                case "2":
-                  stateId=2;
-                  stateColor="rgba(255, 255, 0, 0.25)";
-                  break; 
-              }
-            }
-          }
-          else if(this.id.match(/red/i)) {
-            countryColor="rgba(255, 0, 0, 0.25)";
-            countryId=2;
-            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
-              countryMode=false;
-              stateMode=true;
-              switch(arr[1]) {
-                case "1":
-                  stateId=10;
-                  stateColor="rgba(255, 0, 0, 0.25)";
-                  break; 
-                case "2":
-                  stateId=11;
-                  stateColor="rgba(255, 0, 0, 0.25)";
-                  break; 
-                case "3":
-                  stateId=12;
-                  stateColor="rgba(255, 0, 0, 0.25)";
-                  break; 
-                case "4":
-                  stateId=13;
-                  stateColor="rgba(255, 0, 0, 0.25)";
-                  break; 
-              }
-            }
-          }
-          else if(this.id.match(/blue/i)) {
-            countryColor="rgba(0, 0, 255, 0.25)";
-            countryId=3;
-            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
-              countryMode=false;
-              stateMode=true;
-              switch(arr[1]) {
-                case "1":
-                  stateId=7;
-                  stateColor="rgba(0, 0, 255, 0.25)";
-                  break; 
-                case "2":
-                  stateId=8;
-                  stateColor="rgba(0, 0, 255, 0.25)";
-                  break; 
-                case "3":
-                  stateId=9;
-                  stateColor="rgba(0, 0, 255, 0.25)";
-                  break; 
-              }
-            }
-           }
-         else if(this.id.match(/green/i)) {
-            countryColor="rgba(0, 255, 0, 0.25)";
-            countryId=4;
-            if(arr = e.target.id.match(/state.*([0-9]+)/i)) {
-              countryMode=false;
-              stateMode=true;
-              switch(arr[1]) {
-                case "1":
-                  stateId=3;
-                  stateColor="rgba(0, 255, 0, 0.25)";
-                  break; 
-                case "2":
-                  stateId=4;
-                  stateColor="rgba(0, 255, 0, 0.25)";
-                  break; 
-                case "3":
-                  stateId=5;
-                  stateColor="rgba(0, 255, 0, 0.25)";
-                  break; 
-                case "4":
-                  stateId=6;
-                  stateColor="rgba(0, 255, 0, 0.25)";
-                  break; 
-              }
-            }
-         }
-         else if(this.id.match(/clear/i)) {
-            countryColor="rgba(255, 255, 255, 0.25)";
-            countryId=null;
-         }
-      });
-
-      $(".hexIconBox").click(function(e) {
-         setIcon(this.id);
-       });
-
-       $(".adnIconBox").click(function(e) {
-         setAdnIcon(this.id);
-       });
-
-      $(".mbuIconBox").click(function(e) {
-         setMbuIcon(this.id);
-       });
-    };
-
-    var pickCountry =  function(context, hexCoordinates, color, country) {
-      var center = hexLib.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
-      context.beginPath();
-      
-      //Left most point
-      context.moveTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset );
-      //line #6
-      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
-      //line #1
-      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
-      //line #2
-      context.lineTo((center.x + hexLib.b / 2.0) + xOffset, center.y + yOffset);
-      //line #3
-      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0) + yOffset);
-      //line #4
-      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0)  + yOffset);
-      //line #5
-      context.lineTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset);
-      context.lineWidth = edgeWidth*2;
-      context.strokeStyle = "#444";
-
-      context.fillStyle = color;
-      context.fill();
-            
-      context.stroke();   
-      jQuery.post("/hexes/"+mapId+"/"+hexCoordinates.u+"/"+hexCoordinates.v,
-                  {hex: {country_id: country}},
-                  function( data ) { if ( data ) { console.log("set: "+JSON.stringify(data)); } });
-    }
-
-    var pickState =  function(context, hexCoordinates, color, state, country) {
-      if(hexes[hexCoordinates.u][hexCoordinates.v].country_id != country) {
-        console.log("Wrong country!!!");
-        return;
-      }
-      var center = hexLib.getPixelCoordinates(hexCoordinates.u, hexCoordinates.v);
-      context.beginPath();
-      
-      //Left most point
-      context.moveTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset );
-      //line #6
-      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
-      //line #1
-      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y - hexLib.a / 2.0) + yOffset);
-      //line #2
-      context.lineTo((center.x + hexLib.b / 2.0) + xOffset, center.y + yOffset);
-      //line #3
-      context.lineTo((center.x + hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0) + yOffset);
-      //line #4
-      context.lineTo((center.x - hexLib.s / 2.0) + xOffset, (center.y + hexLib.a / 2.0)  + yOffset);
-      //line #5
-      context.lineTo((center.x - hexLib.b / 2.0) + xOffset, center.y + yOffset);
-      context.lineWidth = edgeWidth*2;
-      context.strokeStyle = "#444";
-
-      context.fillStyle = color;
-      context.fill();
-            
-      context.stroke();   
-      jQuery.post("/hexes/"+mapId+"/"+hexCoordinates.u+"/"+hexCoordinates.v,
-                  {hex: {country_id: country, province_id: state}},
-                  function( data ) { if ( data ) { console.log("set: "+JSON.stringify(data)); } });
-    }
-
-    var drawBackground = function(thisHex) {
+     var drawBackground = function(thisHex) {
       var img = hexTerrains[thisHex.image];
       var ovly = hexAddons[thisHex.overlay];
       var mbu = hexMbus[thisHex.mobile_unit];
@@ -388,35 +164,22 @@
       imy = (center.y - hexLib.a / 2.0) + 0.4 + yOffset;
       addonX = 4;
       addonY= 2.5;
-      img?context.drawImage(img,imx,imy,hexLib.hexagon_narrow_width+addonX,hexLib.hexagon_narrow_width+addonY):null;
+      context.drawImage(img,imx,imy,hexLib.hexagon_narrow_width+addonX,hexLib.hexagon_narrow_width+addonY);
       ovly?context.drawImage(ovly,imx,imy,hexLib.hexagon_narrow_width+addonX,hexLib.hexagon_narrow_width+addonY):null;
       mbu?context.drawImage(mbu,imx,imy,hexLib.hexagon_narrow_width+addonX,hexLib.hexagon_narrow_width+addonY):null;
     }
 
-    function setIcon(fileName) {
-      currHexIcon=fileName;
-      currAdnIcon=null;
-      currMbuIcon=null;
-      pathMode=false;
-      countryMode=false;
-      stateMode=false;
-    }
-
     function setAdnIcon(fileName) {
       currAdnIcon=fileName;
-      currHexIcon=null;
       currMbuIcon=null;
       pathMode=false;
-      countryMode=false;
       stateMode=false;
     }
 
     function setMbuIcon(fileName) {
       currMbuIcon=fileName;
       currAdnIcon=null;
-      currHexIcon=null;
       pathMode=false;
-      countryMode=false;
       stateMode=false;
     }
 
@@ -850,37 +613,13 @@ if(globalCounter > 900) { return; }
 
   <div id="result">Draw Time: 27 ms</div>
 
-<%= content_tag(:div, class: "countryLegend") do %>
-  <% @map.countries.each do |country| %>
-    <%= link_to("#", id: "countryBorder"+country.color_name, class: "countryBorder") do %>
-      <%= content_tag(:div, class: "countryBorder") do %>
-        <%= content_tag(:p, country.name) %>
-        <canvas id="countryButton<%= country.color_name %>" class="countryButton" width=40 height=30></canvas></br>
-        <%= content_tag(:div, class: "stateLabel") do %>
-          <% country.provinces.each do |province| %>
-          <%= province.name %>&nbsp;&nbsp;&nbsp;
-          <% end %>
-        <% end %>
-        <% country.provinces.each do |province| %>
-          <canvas id="stateButton<%= province.color_name %>" class="countryButton" width=40 height=30></canvas>
-        <% end %>
-      <% end %>
-    <% end %>
-  <% end %>
-  <%= link_to("#", id: "countryBorderClear", class: "countryBorder") do %>
-    <%= content_tag(:div, class: "countryBorder") do %>
-      <%= content_tag(:p, "Country Erase") %>
-      <canvas id="countryButtonClear" class="countryButton" width=40 height=30></canvas>
-    <% end %>
-  <% end %>
-<% end %>
 <%= content_tag(:div, class: "map") do %>
   <canvas id="myCanvas" width="<%= @map.width =%>" height="<%= @map.length =%>"> </canvas>
 <!-- </br> -->
 <% end %>
 <%= content_tag(:div, class: "hexMbu") do %>
   <% @map.mbu_images.each do |image| %>
-    <%= link_to("#", id: image[:name], class: "mbuIconBox") do %>
+    <%= content_tag(:div, id: image[:name], class: "mbuIconBox") do %>
       <%= content_tag(:p, image[:display]) %>
       <%= content_tag(:div, class: "hexIcon") do %>
         <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
@@ -890,7 +629,7 @@ if(globalCounter > 900) { return; }
 <% end %>
 <%= content_tag(:div, class: "hexAddon") do %>
   <% @map.addon_images.each do |image| %>
-    <%= link_to("#", id: image[:name], class: "adnIconBox") do %>
+    <%= content_tag(:div, id: image[:name], class: "adnIconBox") do %>
       <%= content_tag(:p, image[:display]) %>
       <%= content_tag(:div, class: "hexIcon") do %>
         <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
@@ -900,7 +639,7 @@ if(globalCounter > 900) { return; }
 <% end %>
 <%= content_tag(:div, class: "hexLegend") do %>
   <% @map.hex_images.each do |image| %>
-    <%= link_to("#", id: image[:name], class: "hexIconBox") do %>
+    <%= content_tag(:div, id: image[:name], class: "hexIconBox") do %>
       <%= content_tag(:p, image[:display]) %>
       <%= content_tag(:div, class: "hexIcon") do %>
         <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>

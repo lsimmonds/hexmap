@@ -19,10 +19,8 @@ function hexDefinition(edgeSize) {
     this.hexagon_wide_width = this.b;
     this.hexagon_height = this.a;
 
-    /*
-    u - horizontal index of hex
-    v - vertical index of hex
-    */
+    /* u - horizontal index of hex
+       v - vertical index of hex */
     this.getPixelCoordinates = function(u, v) {
 
         var x = this.hexagon_narrow_width * u;
@@ -33,7 +31,6 @@ function hexDefinition(edgeSize) {
     };
 
     this.getReferencePoint = function(x, y) {
-//console.log('s: '+this.s+' h: '+this.h+' r: '+this.r+' b: '+this.b+' a: '+this.a+' hexagon_narrow_width: '+this.hexagon_narrow_width+' hexagon_wide_width: '+this.hexagon_wide_width+' hexagon_height: '+this.hexagon_height);
 
         var u = Math.round( x / this.hexagon_narrow_width );
         //var v = Math.round(y / this.hexagon_height - u * 0.5);

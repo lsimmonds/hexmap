@@ -1,6 +1,8 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Maps</h1>
+<%= render 'login' %>\
+<%= render 'register' %>
 
 <table>
   <thead>
@@ -12,9 +14,17 @@
   <tbody>
     <% @maps.each do |map| %>
       <tr>
+        <td>Name: <%= map.name %></td>
         <td><%= link_to 'Show', map %></td>
+        <% if current_user.has_role? :player  %>
+        <td><%= link_to 'Play', play_path(map) %></td>
+        <% end %>
+        <% if current_user.has_role? :admin  %>
         <td><%= link_to 'Edit', edit_map_path(map) %></td>
+        <% end %>
+        <% if current_user.has_role? :admin  %>
         <td><%= link_to 'Destroy', map, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>
