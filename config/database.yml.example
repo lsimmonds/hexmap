@@ -1,10 +1,10 @@
 development:
   adapter: mysql2
   encoding: utf8
-  database: hm_dev
-  username: hm_user_dev
-  password: thepwfordev
-  host: mysql.leonsimmonds.com
+  database: your_name_for_dev
+  username: your_user_for_dev
+  password: your_password
+  host: your_host
   port: 3306
 
 # re-generated from your development database when you run "rake".
@@ -12,19 +12,20 @@ development:
 test: &test
   adapter: mysql2
   encoding: utf8
-  database: hm_test
-  username: hm_user_test
-  password: thepwfortest
-  host: mysql.leonsimmonds.com
+  database: your_name_for_test
+  username: your_user_for_test
+  password: your_password
+  host: your_host
   port: 3306
 
 production:
   adapter: mysql2
   encoding: utf8
   database: hm_prod
-  username: hm_user_prod
-  password: thepwforprod
-  host: mysql.leonsimmonds.com
+  database: your_name_for_prod
+  username: your_user_for_prod
+  password: your_password
+  host: your_host
   port: 3306
 
 cucumber:
