@@ -17,15 +17,8 @@ Rails.application.routes.draw do
   post 'hexes/:map_id/:x/:y' => 'hexes#create'
   
   
-  resources :maps do
-    resources :countries do
-      resources :provinces
-    end
-  end
-  get 'maps/:id/play' => 'maps#play', as: 'play'
-  get 'maps/:id/display_properties' => 'maps#display_properties', as: 'display_properties'
-  post 'maps/:id/update_properties' => 'maps#update_properties', as: 'update_properties'
-  patch 'maps/:id/update_properties' => 'maps#update_properties'
+  resources :maps
+  resources :boards
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
