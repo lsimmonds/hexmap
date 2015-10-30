@@ -49,16 +49,15 @@ class MapsController < ApplicationController
   def update
     respond_to do |format|
       if @map.update(map_params[:map])
-logger.debug "map_params[:country]: "+map_params[:country].inspect
         country = map_params[:country]
         unless country.nil? || ( country[:name]=="" && country[:description]=="" && country[:color]=="" &&  country[:color_name]=""  )
           province = map_params[:province]
           if province.nil? || ( province[:name]=="" && province[:description]=="" && province[:color]=="" &&  province[:color_name]=""  )
-            @map.countries << Country.new(country)
+            @map.countries.create(country)
             @map.save
           else
             country=Country.find country[:id]
-            country.provinces << Province.new(province);
+            country.provinces.create(province);
           end
         end
         format.html { redirect_to @map, notice: 'Map was successfully updated.' }
@@ -89,12 +88,6 @@ logger.debug "map_params[:country]: "+map_params[:country].inspect
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def map_params
-logger.debug "map_params params:"+params.inspect
-logger.debug "map_params params[:map]: "+params[:map].inspect
-      if params[:map].nil?
-logger.debug "In here......................."
-        return ActionController::Parameters.new(map: {:id=>@map[:id],:name=>@map[:name],:length=>@map[:length],:width=>@map[:width]}) 
-      end
       params.permit([:map=>[:id,:name,:description,:length,:width],:country=>[:id, :name, :description, :color, :color_name],:province=>[:id, :name, :description, :color, :color_name]])
     end
 end

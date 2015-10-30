@@ -878,32 +878,41 @@ if(globalCounter > 900) { return; }
   <canvas id="myCanvas" width="<%= @board.width =%>" height="<%= @board.length =%>"> </canvas>
 <!-- </br> -->
 <% end %>
-<%= content_tag(:div, class: "hexMbu") do %>
-  <% @board.mbu_images.each do |image| %>
-    <%= link_to("#", id: image[:name], class: "mbuIconBox") do %>
-      <%= content_tag(:p, image[:display]) %>
-      <%= content_tag(:div, class: "hexIcon") do %>
-        <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
+<%= content_tag(:div, class: "pieceEnclosure") do %>
+  <h3>Movable Pieces</h3>
+  <%= content_tag(:div, class: "hexMbu") do %>
+    <% @board.mbu_images.each do |image| %>
+      <%= link_to("#", id: image[:name], class: "mbuIconBox") do %>
+        <%= content_tag(:p, image[:display]) %>
+        <%= content_tag(:div, class: "hexIcon") do %>
+          <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
 <% end %>
-<%= content_tag(:div, class: "hexAddon") do %>
-  <% @board.addon_images.each do |image| %>
-    <%= link_to("#", id: image[:name], class: "adnIconBox") do %>
-      <%= content_tag(:p, image[:display]) %>
-      <%= content_tag(:div, class: "hexIcon") do %>
-        <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
+<%= content_tag(:div, class: "pieceEnclosure") do %>
+  <h3>Added Elements</h3>
+  <%= content_tag(:div, class: "hexAddon") do %>
+    <% @board.addon_images.each do |image| %>
+      <%= link_to("#", id: image[:name], class: "adnIconBox") do %>
+        <%= content_tag(:p, image[:display]) %>
+        <%= content_tag(:div, class: "hexIcon") do %>
+          <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
+          <% end %>
       <% end %>
     <% end %>
   <% end %>
 <% end %>
-<%= content_tag(:div, class: "hexLegend") do %>
-  <% @board.hex_images.each do |image| %>
-    <%= link_to("#", id: image[:name], class: "hexIconBox") do %>
-      <%= content_tag(:p, image[:display]) %>
-      <%= content_tag(:div, class: "hexIcon") do %>
-        <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
+<%= content_tag(:div, class: "pieceEnclosure") do %>
+  <h3>Terrain</h3>
+  <%= content_tag(:div, class: "hexLegend") do %>
+    <% @board.hex_images.each do |image| %>
+      <%= link_to("#", id: image[:name], class: "hexIconBox") do %>
+        <%= content_tag(:p, image[:display]) %>
+        <%= content_tag(:div, class: "hexIcon") do %>
+          <%= image_tag(image[:path].gsub(/.*\//,''), alt: image[:display]) %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>

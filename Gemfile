@@ -44,7 +44,7 @@ gem 'userstamp', '~> 2.0.1'
 
 gem 'hashable', '~> 0.1.2'
 
-gem "cucumber-rails", :group => [:test]
+gem "cucumber-rails", :require => false, :group => [:test]
 group :development, :test do
   # Call 'debugger' anywhere in the code to stop execution and get a debugger console
   gem 'debugger'

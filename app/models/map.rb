@@ -1,8 +1,8 @@
 class Map < ActiveRecord::Base
   include Authority::Abilities
-  resourcify
-  has_many :countries
+  has_many :countries, -> { includes :provinces }, :inverse_of => :map, dependent: :destroy
   before_save :set_creator
+  resourcify
 
   def set_creator
     if defined? current_user
