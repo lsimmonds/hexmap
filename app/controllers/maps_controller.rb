@@ -32,6 +32,8 @@ class MapsController < ApplicationController
   # POST /maps.json
   def create
     @map = Map.new(map_params)
+    @map.creator=current_user
+    @map.updater=current_user
 
     respond_to do |format|
       if @map.save
@@ -48,13 +50,12 @@ class MapsController < ApplicationController
   # PATCH/PUT /maps/1.json
   def update
     respond_to do |format|
-      if @map.update(map_params[:map])
+      if @map.save(map_params[:map])
         country = map_params[:country]
         unless country.nil? || ( country[:name]=="" && country[:description]=="" && country[:color]=="" &&  country[:color_name]=""  )
           province = map_params[:province]
           if province.nil? || ( province[:name]=="" && province[:description]=="" && province[:color]=="" &&  province[:color_name]=""  )
             @map.countries.create(country)
-            @map.save
           else
             country=Country.find country[:id]
             country.provinces.create(province);
@@ -84,6 +85,7 @@ class MapsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_map
       @map = Map.find(params[:id])
+      @map.updater=current_user
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

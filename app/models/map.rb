@@ -1,15 +1,7 @@
 class Map < ActiveRecord::Base
   include Authority::Abilities
   has_many :countries, -> { includes :provinces }, :inverse_of => :map, dependent: :destroy
-  before_save :set_creator
   resourcify
-
-  def set_creator
-    if defined? current_user
-      self.new_record? && self.creator=current_user
-      self.updater=current_user
-    end
-  end
 
   def hex_images
     images=[]

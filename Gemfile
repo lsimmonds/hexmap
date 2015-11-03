@@ -40,11 +40,13 @@ gem 'authority'
 gem 'rolify'
 
 #gem 'magiclabs-userstamp', '~> 2.1.0'
-gem 'userstamp', '~> 2.0.1'
+#gem 'userstamp', '~> 2.0.1'
+gem 'userstamp', :git => 'https://github.com/stricte/userstamp.git', :branch => 'rails4'
 
 gem 'hashable', '~> 0.1.2'
 
 gem "cucumber-rails", :require => false, :group => [:test]
+gem 'shoulda-matchers', '~> 3.0', :require => false, :group => [:test]
 group :development, :test do
   # Call 'debugger' anywhere in the code to stop execution and get a debugger console
   gem 'debugger'
