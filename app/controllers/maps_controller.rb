@@ -16,7 +16,8 @@ class MapsController < ApplicationController
   # GET /maps/new
   def new
     @map = Map.new
-    @map.name=""
+    @map.creator=current_user
+    @map.updater=current_user
     @map.length=500
     @map.width=400
     if @map.save
@@ -50,7 +51,8 @@ class MapsController < ApplicationController
   # PATCH/PUT /maps/1.json
   def update
     respond_to do |format|
-      if @map.save(map_params[:map])
+      @map.assign_attributes(map_params[:map])
+      if @map.save
         country = map_params[:country]
         unless country.nil? || ( country[:name]=="" && country[:description]=="" && country[:color]=="" &&  country[:color_name]=""  )
           province = map_params[:province]
