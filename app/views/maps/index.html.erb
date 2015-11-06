@@ -15,7 +15,7 @@
     <% @maps.each do |map| %>
       <tr>
         <td>Name: <%= map.name %></td>
-        <td><%= link_to 'Show', map %></td>
+        <td><%= link_to 'Show', board_path(map) %></td>
         <% if current_user.has_role? :player  %>
         <td><%= link_to 'Play', edit_board_path(map) %></td>
         <% end %>

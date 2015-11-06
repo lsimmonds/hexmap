@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Hex, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "belongs to a map" do
+    hex = Hex.create!
+    expect(hex).to belong_to(:map)
+  end
+
 end

@@ -2,8 +2,8 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.0'
-gem 'mysql2', '~> 0.3.17'
+gem 'rails', '4.2.4'
+gem 'mysql2', '~> 0.3.18'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -11,9 +11,9 @@ gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.1.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-gem 'execjs', '~> 2.3.0'
+gem 'execjs', '~> 2.6.0'
 gem 'therubyracer', platforms: :ruby
-gem 'sprockets-rails', '~> 2.2.4'
+gem 'sprockets-rails', '~> 2.3.3'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -34,9 +34,9 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # gem 'capistrano-rails', group: :development
 gem "figaro"
 gem 'warden', '~> 1.2.3'
-gem 'devise', '~> 3.4.1'
+gem 'devise', '~> 3.5.2'
 #gem 'devise', '3.0.0.rc'
-gem 'authority'
+gem 'authority', '~> 3.1.0'
 gem 'rolify'
 
 #gem 'magiclabs-userstamp', '~> 2.1.0'
@@ -45,7 +45,7 @@ gem 'userstamp', :git => 'https://github.com/stricte/userstamp.git', :branch => 
 
 gem 'hashable', '~> 0.1.2'
 
-gem "cucumber-rails", :require => false, :group => [:test]
+gem "cucumber-rails", '~> 1.4.2', :require => false, :group => [:test]
 gem 'shoulda-matchers', '~> 3.0', :require => false, :group => [:test]
 group :development, :test do
   # Call 'debugger' anywhere in the code to stop execution and get a debugger console
@@ -59,11 +59,11 @@ group :development, :test do
 
   gem 'rspec-rails'
   gem "factory_girl_rails"
-  gem "database_cleaner"
+  gem "database_cleaner", '~> 1.5.1'
   gem "email_spec"
-  gem "capybara"
+  gem "capybara", '~> 2.5.0'
   gem "selenium-webdriver"
-  gem 'capybara-json'
+  gem 'capybara-json', '~> 0.4.0'
   gem "json_spec", "~> 1.1.1"
 end
 

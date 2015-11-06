@@ -8,6 +8,12 @@ RSpec.describe Map, type: :model do
     expect(map).to have_many(:countries)
   end
 
+  it "has many hexes" do
+    map = Map.create!
+    map.hexes.create!
+    expect(map).to have_many(:hexes)
+  end
+
   it "destroys countries when it is destroyed" do
     map = Map.create!
     map.countries.create!
