@@ -120,7 +120,7 @@
 
         var result = hexLib.getReferencePoint(x - xOffset, y - yOffset);
         if(currHexIcon) { 
-          jQuery.post("/hexes/"+boardId+"/"+result.u+"/"+result.v, {hex: {image: currHexIcon, board_id: boardId, x: result.u, y: result.v}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
+          jQuery.post("/hexes/"+boardId+"/"+result.u+"/"+result.v, {hex: {image: currHexIcon, map_id: boardId, x: result.u, y: result.v}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
           if(typeof hexes[result.u] == "undefined") {
             hexes[result.u]=[];
           }
@@ -133,11 +133,11 @@
           hexes[result.u][result.v].image=currHexIcon;
         }
         else if(currAdnIcon) { 
-          jQuery.post("/hexes/"+boardId+"/"+result.u+"/"+result.v, {hex: {board_id: boardId, x: result.u, y: result.v, overlay: currAdnIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
+          jQuery.post("/hexes/"+boardId+"/"+result.u+"/"+result.v, {hex: {map_id: boardId, x: result.u, y: result.v, overlay: currAdnIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
           hexes[result.u][result.v].overlay=currAdnIcon;
         }
         else if(currMbuIcon) { 
-          jQuery.post("/hexes/"+boardId+"/"+result.u+"/"+result.v, {hex: {board_id: boardId, x: result.u, y: result.v, mobile_unit: currMbuIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
+          jQuery.post("/hexes/"+boardId+"/"+result.u+"/"+result.v, {hex: {map_id: boardId, x: result.u, y: result.v, mobile_unit: currMbuIcon}}, function( data ) { /*if ( data ) { console.log("set: "+JSON.stringify(data)); }*/ });
           hexes[result.u][result.v].mobile_unit=currMbuIcon;
         }
         if(currHexIcon || currAdnIcon || currMbuIcon) { 
@@ -817,6 +817,7 @@ if(globalCounter > 900) { return; }
 
     function drawBorders(hexes) {
       for (var i = 0; i < hexes.length; i++) {
+        if(!(hexes[i])) { continue; }
         for (var j = 0; j < hexes[i].length; j++) {
           if(!(hexes[i][j])) { continue; }
           drawBorder(hexes[i][j]);
@@ -844,7 +845,7 @@ if(globalCounter > 900) { return; }
       }
       var date2 = new Date().getTime();
       document.getElementById("result").innerHTML = "Draw Time: " + (date2 - date1) + " ms";
-      jQuery.get("/hexes/"+boardId, function( data ) { if ( data ) { putHexes(data); console.log("got hexes"); } });
+      putHexes(<%= @board.hexes.to_json.to_s.html_safe %>);
     }
   </script>
 

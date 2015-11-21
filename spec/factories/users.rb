@@ -3,5 +3,4 @@ FactoryGirl.define do
     email "test@test.com"
     password "testing123"
   end
-
 end

@@ -607,7 +607,8 @@ if(globalCounter > 900) { return; }
       }
       var date2 = new Date().getTime();
       document.getElementById("result").innerHTML = "Draw Time: " + (date2 - date1) + " ms";
-      jQuery.get("/hexes/"+mapId, function( data ) { if ( data ) { putHexes(data); console.log("got hexes"); } });
+      //jQuery.get("/hexes/"+mapId, function( data ) { if ( data ) { putHexes(data); console.log("got hexes"); } });
+      putHexes(<%= @map.hexes.to_json.to_s.html_safe %>);
     }
   </script>
 
