@@ -44,7 +44,7 @@
               <% end %>
             </div>
             <div class="province_form">
-              <%= form_for(Province.new, :url => {:action => "update_properties"},:html => {:method => "post"}) do |p| %>
+              <%= form_for(Province.new, :url => {:action => "update"},:html => {:method => "post"}) do |p| %>
                 <%= hidden_field_tag :map, @map.to_json %>
                 <%= hidden_field_tag :country, country.to_json %>
                 <div class="province_element">

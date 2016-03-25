@@ -20,10 +20,11 @@ logger.debug "in show, hex: "+@hex.inspect
 
   # GET /hexes/1
   # GET /hexes/1.json
-  def show_map
-    @hexes = Hex.where(:map_id => params[:map_id]).select("id, name, description, map_id, country_id, province_id, image, background, overlay, mobile_unit, x, y, local_image")
-    render :json => @hexes
-  end
+#  def show_map
+#    redirect_to maps_path
+    #@hexes = Hex.where(:map_id => params[:map_id]).select("id, name, description, map_id, country_id, province_id, image, background, overlay, mobile_unit, x, y, local_image")
+    #render :json => @hexes
+#  end
 
   # GET /hexes/new
   def new
@@ -42,6 +43,7 @@ logger.debug "in show, hex: "+@hex.inspect
       return
     else
       @hex = Hex.new(hex_params)
+puts "create @hex: "+@hex.inspect
     end
 
     respond_to do |format|

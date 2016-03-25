@@ -1,3 +1,4 @@
 class Country < ActiveRecord::Base
-  has_many :provinces
+  belongs_to :map, inverse_of: :countries, touch: true
+  has_many :provinces, :inverse_of => :country, dependent: :destroy
 end
