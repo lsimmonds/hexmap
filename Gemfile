@@ -12,7 +12,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.1.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 gem 'execjs', '~> 2.3.0'
-gem 'therubyracer', platforms: :ruby
+gem 'therubyracer', '~> 0.12.1', platforms: :ruby
 gem 'sprockets-rails', '~> 2.2.4'
 
 # Use jquery as the JavaScript library
@@ -40,7 +40,8 @@ gem 'authority'
 gem 'rolify'
 
 #gem 'magiclabs-userstamp', '~> 2.1.0'
-gem 'userstamp', '~> 2.0.1'
+#gem 'userstamp', '~> 2.0.1'
+gem 'userstamp', :git => 'https://github.com/stricte/userstamp.git', :branch => 'rails4'
 
 gem 'hashable', '~> 0.1.2'
 
