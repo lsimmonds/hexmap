@@ -43,8 +43,8 @@ ActiveRecord::Schema.define(version: 20151012205101) do
     t.integer  "x",           limit: 4
     t.integer  "y",           limit: 4
     t.string   "local_image", limit: 255
-    t.boolean  "c_border",    limit: 1,     default: false
-    t.boolean  "p_border",    limit: 1,     default: false
+    t.boolean  "c_border",                  default: false
+    t.boolean  "p_border",                  default: false
     t.string   "mobile_unit", limit: 255
   end
 

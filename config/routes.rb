@@ -12,7 +12,6 @@ Rails.application.routes.draw do
   post '/countries/:id(.:format)' => 'countries#update'
 
   #resources :hexes
-  #get 'hexes/:map_id' => 'hexes#show_map'
   get 'hexes/:map_id/:x/:y' => 'hexes#show'
   post 'hexes/:map_id/:x/:y' => 'hexes#create'
   

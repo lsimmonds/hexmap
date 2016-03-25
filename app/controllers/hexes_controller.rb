@@ -18,14 +18,6 @@ logger.debug "in show, hex: "+@hex.inspect
     render :json => @hex
   end
 
-  # GET /hexes/1
-  # GET /hexes/1.json
-#  def show_map
-#    redirect_to maps_path
-    #@hexes = Hex.where(:map_id => params[:map_id]).select("id, name, description, map_id, country_id, province_id, image, background, overlay, mobile_unit, x, y, local_image")
-    #render :json => @hexes
-#  end
-
   # GET /hexes/new
   def new
     @hex = Hex.new
@@ -95,6 +87,7 @@ logger.debug "in set_hex, hex: "+@hex.inspect
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def hex_params
+logger.debug "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX in hex_params, params: "+params.inspect
       params.require(:hex).permit(:map_id,:x,:y,:name,:image,:country_id,:province_id,:overlay,:mobile_unit)
     end
 end

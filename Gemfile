@@ -47,8 +47,8 @@ gem 'hashable', '~> 0.1.2'
 gem "cucumber-rails", '~> 1.4.2', :require => false, :group => [:test]
 gem 'shoulda-matchers', '~> 3.0', :require => false, :group => [:test]
 group :development, :test do
-  # Call 'debugger' anywhere in the code to stop execution and get a debugger console
-  gem 'debugger'
+  # Call 'pry-byebug' anywhere in the code to stop execution and get a pry-byebug console
+  gem 'pry-byebug'
 
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
